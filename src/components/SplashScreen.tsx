@@ -1,13 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function SplashScreen() {
   const [show, setShow] = useState(true);
   const [fadeOut, setFadeOut] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    // Começa a esmaecer após 4 segundos (tempo para ver as faíscas)
+    // Tenta forçar o play no Safari/Chrome
+    if (videoRef.current) {
+      videoRef.current.play().catch(e => console.error("Auto-play prevented", e));
+    }
+
+    // Começa a esmaecer após 4 segundos
     const fadeTimer = setTimeout(() => {
       setFadeOut(true);
     }, 4000);
@@ -45,15 +51,17 @@ export default function SplashScreen() {
       }}
     >
       <video 
+        ref={videoRef}
         src="/splash.mp4" 
         autoPlay 
         muted 
         playsInline
+        preload="auto"
         style={{
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          transform: 'scale(1.15)' // Zoom para esconder a marca d'água nos cantos
+          transform: 'scale(1.15)'
         }}
       />
     </div>
