@@ -7,7 +7,7 @@ export async function loginAction(formData: FormData) {
   const password = formData.get('password') as string;
 
   if (!email || !password) {
-    throw new Error('E-mail e senha são obrigatórios.');
+    return { error: 'E-mail e senha são obrigatórios.' };
   }
 
   const supabase = await createClient();
@@ -21,7 +21,7 @@ export async function loginAction(formData: FormData) {
     if (error.message.includes('Email not confirmed')) {
       return { requiresVerification: true, email };
     }
-    throw new Error('Credenciais inválidas.');
+    return { error: 'Credenciais inválidas.' };
   }
 
   return { success: true };

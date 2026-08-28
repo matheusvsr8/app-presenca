@@ -18,6 +18,11 @@ export default function LoginPage() {
       try {
         const result = await loginAction(formData);
         
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+
         if (result?.requiresVerification) {
           toast.warning('Você precisa confirmar seu e-mail antes de entrar.');
           router.push('/verify-email');
