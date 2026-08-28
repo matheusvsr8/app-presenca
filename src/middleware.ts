@@ -6,19 +6,19 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
   const role = req.auth?.user?.role;
 
-  const isAuthRoute = nextUrl.pathname.startsWith('/login');
+  const isAuthRoute = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register');
   
   if (isAuthRoute) {
     if (isLoggedIn) {
-      if (role === 'STUDENT') return Response.redirect(new URL('/student', nextUrl));
-      if (role === 'COLLABORATOR') return Response.redirect(new URL('/scanner', nextUrl));
-      return Response.redirect(new URL('/admin', nextUrl));
+      if (role === 'STUDENT') return NextResponse.redirect(new URL('/student', nextUrl));
+      if (role === 'COLLABORATOR') return NextResponse.redirect(new URL('/scanner', nextUrl));
+      return NextResponse.redirect(new URL('/admin', nextUrl));
     }
     return null;
   }
 
   if (!isLoggedIn) {
-    return Response.redirect(new URL('/login', nextUrl));
+    return NextResponse.redirect(new URL('/login', nextUrl));
   }
 
   // Controle de acesso por perfis

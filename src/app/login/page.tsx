@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
+import Link from 'next/link';
 import { authenticate } from './actions';
 import styles from './login.module.css';
 
@@ -48,6 +49,12 @@ export default function LoginPage() {
           <button className={styles.button} aria-disabled={isPending} type="submit">
             {isPending ? 'Entrando...' : 'Entrar'}
           </button>
+          
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <Link href="/register" style={{ color: 'var(--primary)', fontSize: '0.9rem', textDecoration: 'none', fontWeight: 500 }}>
+              Sou aluno e não tenho conta
+            </Link>
+          </div>
         </form>
       </div>
     </div>

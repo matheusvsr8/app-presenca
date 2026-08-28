@@ -5,8 +5,8 @@ const config: CapacitorConfig = {
   appName: 'app-presenca',
   webDir: 'out',
   server: {
-    // 10.0.2.2 é o alias do Android Emulator para o 'localhost' do seu PC
-    url: 'http://10.0.2.2:3000',
+    // Apontando para o seu servidor Vercel real na nuvem!
+    url: 'https://app-presenca-seven.vercel.app',
     cleartext: true
   }
 };
