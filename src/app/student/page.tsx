@@ -12,7 +12,7 @@ export default async function StudentDashboard() {
     redirect('/login');
   }
 
-  const user = await prisma.user.findUnique({
+  const dbUser = await prisma.user.findUnique({
     where: { id: user?.id },
   });
 
@@ -20,7 +20,7 @@ export default async function StudentDashboard() {
     <div className={styles.container}>
       <header className={styles.header}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h1 className={styles.title} style={{ margin: 0 }}>Olá, {user?.name}</h1>
+          <h1 className={styles.title} style={{ margin: 0 }}>Olá, {dbUser?.name}</h1>
           <a href="/api/auth/signout" style={{ color: 'var(--error)', fontWeight: 'bold' }}>Sair</a>
         </div>
         <p className={styles.subtitle}>Área do Aluno</p>
@@ -30,8 +30,8 @@ export default async function StudentDashboard() {
         <div className={`${styles.card} glass`}>
           <h2>Seu QR Code de Acesso</h2>
           <div className={styles.qrPlaceholder}>
-            {user?.qrCode ? (
-              <QRCodeSVG value={user.qrCode} size={200} fgColor="var(--primary)" bgColor="transparent" />
+            {dbUser?.qrCode ? (
+              <QRCodeSVG value={dbUser.qrCode} size={200} fgColor="var(--primary)" bgColor="transparent" />
             ) : (
               <p>Você não possui um QR Code ainda.</p>
             )}
