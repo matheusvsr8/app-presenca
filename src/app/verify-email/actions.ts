@@ -25,29 +25,34 @@ export async function verifyEmailAction(email: string, token: string) {
   if (data.user) {
     const { id, user_metadata } = data.user;
     
-    // Verifica se já existe no Prisma para não duplicar
-    const existingUser = await prisma.user.findUnique({ where: { id } });
-    
-    if (!existingUser && user_metadata?.role === 'STUDENT') {
-      await prisma.$transaction(async (tx) => {
-        const student = await tx.user.create({
-          data: {
-            id, // Usa o mesmo UUID do Supabase
-            name: user_metadata.name,
-            email: email,
-            role: 'STUDENT',
-            qrCode: user_metadata.qrCode,
-            tenantId: user_metadata.tenantId,
-          }
-        });
+    try {
+      // Verifica se já existe no Prisma para não duplicar
+      const existingUser = await prisma.user.findUnique({ where: { id } });
+      
+      if (!existingUser && user_metadata?.role === 'STUDENT') {
+        await prisma.$transaction(async (tx) => {
+          const student = await tx.user.create({
+            data: {
+              id,
+              name: user_metadata.name || 'Sem nome',
+              email: email,
+              role: 'STUDENT',
+              qrCode: user_metadata.qrCode || id,
+              tenantId: user_metadata.tenantId,
+            }
+          });
 
-        await tx.enrollment.create({
-          data: {
-            studentId: student.id,
-            courseId: user_metadata.courseId
-          }
+          await tx.enrollment.create({
+            data: {
+              studentId: student.id,
+              courseId: user_metadata.courseId
+            }
+          });
         });
-      });
+      }
+    } catch (prismaError: any) {
+      console.error("ERRO DO PRISMA:", prismaError);
+      throw new Error("Erro de Banco de Dados: " + (prismaError.message || JSON.stringify(prismaError)));
     }
   }
 
