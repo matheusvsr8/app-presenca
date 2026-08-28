@@ -23,11 +23,16 @@ function VerifyEmailForm() {
     
     startTransition(async () => {
       try {
-        await verifyEmailAction(email, code);
+        const result = await verifyEmailAction(email, code);
+        if (result.error) {
+          toast.error(result.error);
+          return;
+        }
+        
         toast.success('E-mail verificado com sucesso! Pode fazer login.');
         router.push('/login');
       } catch (error: any) {
-        toast.error(error.message || 'Código inválido.');
+        toast.error(error.message || 'Erro inesperado.');
       }
     });
   }

@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 
 export async function verifyEmailAction(email: string, token: string) {
   if (!email || !token) {
-    throw new Error('E-mail e código são obrigatórios.');
+    return { error: 'E-mail e código são obrigatórios.' };
   }
 
   const supabase = await createClient();
@@ -17,7 +17,7 @@ export async function verifyEmailAction(email: string, token: string) {
   });
 
   if (error) {
-    throw new Error('Código inválido ou expirado.');
+    return { error: 'Código inválido ou expirado.' };
   }
 
   // Se o token estiver certo, o usuário agora está logado no Supabase.
@@ -52,7 +52,7 @@ export async function verifyEmailAction(email: string, token: string) {
       }
     } catch (prismaError: any) {
       console.error("ERRO DO PRISMA:", prismaError);
-      throw new Error("Erro de Banco de Dados: " + (prismaError.message || JSON.stringify(prismaError)));
+      return { error: "Erro de Banco de Dados: " + (prismaError.message || JSON.stringify(prismaError)) };
     }
   }
 
