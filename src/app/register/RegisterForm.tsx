@@ -18,8 +18,8 @@ export default function RegisterForm({ courses }: { courses: { id: string, name:
       try {
         const result = await registerStudent(formData);
         
-        if (result?.error) {
-          toast.error(result.error);
+        if (!result || result.error || !result.email) {
+          toast.error(result?.error || 'Erro ao criar conta.');
           return;
         }
 
