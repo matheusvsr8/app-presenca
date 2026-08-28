@@ -1,7 +1,7 @@
 'use server';
 
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export async function registerStudent(formData: FormData) {
@@ -14,41 +14,33 @@ export async function registerStudent(formData: FormData) {
     throw new Error('Preencha todos os campos obrigatórios.');
   }
 
-  // Verificar se email já existe
-  const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) {
-    throw new Error('E-mail já está em uso.');
-  }
-
-  // Buscar o curso para pegar o tenantId
+  // Buscar o curso para pegar o tenantId antes de cadastrar
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) {
     throw new Error('Curso não encontrado.');
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  const qrCode = crypto.randomUUID();
+  const supabase = createClient();
 
-  // Executar criação do aluno e matrícula numa transação segura
-  await prisma.$transaction(async (tx) => {
-    const student = await tx.user.create({
+  // O Supabase enviará o e-mail automaticamente de acordo com as configurações do painel
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
       data: {
         name,
-        email,
-        password: hashedPassword,
         role: 'STUDENT',
-        qrCode,
-        tenantId: course.tenantId
+        courseId,
+        tenantId: course.tenantId,
+        qrCode: crypto.randomUUID()
       }
-    });
-
-    await tx.enrollment.create({
-      data: {
-        studentId: student.id,
-        courseId: course.id
-      }
-    });
+    }
   });
 
-  return { success: true };
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Retornamos o email para que a UI direcione para /verify-email
+  return { success: true, email };
 }

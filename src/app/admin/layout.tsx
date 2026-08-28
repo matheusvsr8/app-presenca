@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import FloatingNavbar from './components/FloatingNavbar';
 import { Hexagon, User } from 'lucide-react';
@@ -9,9 +9,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!user || user?.user_metadata?.role !== 'ADMIN') {
     redirect('/login');
   }
 
@@ -32,7 +33,7 @@ export default async function AdminLayout({
             <User size={14} color="var(--background)" strokeWidth={3} />
           </div>
           <span className={styles.userName}>
-            {session?.user?.name}
+            {user?.name}
           </span>
         </div>
       </header>

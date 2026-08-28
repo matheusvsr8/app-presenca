@@ -38,9 +38,19 @@ export default function FloatingNavbar() {
       <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
       
       {/* Botão de Sair */}
-      <a href="/api/auth/signout" className={styles.navItem} title="Sair" style={{ color: 'var(--error)' }}>
+      <button 
+        onClick={async () => {
+          const { createClient } = await import('@/utils/supabase/client');
+          const supabase = createClient();
+          await supabase.auth.signOut();
+          window.location.href = '/login';
+        }}
+        className={styles.navItem} 
+        title="Sair" 
+        style={{ color: 'var(--error)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+      >
         <LogOut size={22} strokeWidth={2} />
-      </a>
+      </button>
     </nav>
   );
 }

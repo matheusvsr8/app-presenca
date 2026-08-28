@@ -1,13 +1,14 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import styles from '../students/students.module.css';
 
 export default async function ReportsPage() {
-  const session = await auth();
-  const tenantId = session?.user?.tenantId;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const tenantId = user?.tenantId;
 
-  if (!tenantId || session?.user?.role !== 'ADMIN') redirect('/login');
+  if (!tenantId || user?.role !== 'ADMIN') redirect('/login');
 
   // Relatório simples: lista cursos e puxa dados agregados
   const courses = await prisma.course.findMany({

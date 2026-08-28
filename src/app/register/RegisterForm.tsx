@@ -14,9 +14,9 @@ export default function RegisterForm({ courses }: { courses: { id: string, name:
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
       try {
-        await registerStudent(formData);
-        toast.success('Conta criada com sucesso! Faça login para ver seu QR Code.');
-        router.push('/login');
+        const result = await registerStudent(formData);
+        toast.success('Conta criada! Verifique seu e-mail.');
+        router.push(`/verify-email?email=${encodeURIComponent(result.email)}`);
       } catch (error: any) {
         toast.error(error.message || 'Erro ao criar conta.');
       }

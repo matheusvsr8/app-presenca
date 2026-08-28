@@ -1,15 +1,16 @@
 'use server';
 
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 
 export async function registerAttendance(qrCode: string, sessionId: string) {
-  const session = await auth();
-  if (!session?.user || session.user.role === 'STUDENT') {
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user?.user_metadata?.role === 'STUDENT') {
     return { success: false, error: 'Não autorizado.' };
   }
 
-  const tenantId = session.user.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
   try {
     // 1. Achar o aluno pelo QRCode e checar tenant

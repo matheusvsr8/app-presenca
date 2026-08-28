@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
@@ -7,10 +7,11 @@ import styles from '../students.module.css';
 import { deleteStudent } from './actions';
 
 export default async function StudentProfilePage({ params }: { params: { id: string } }) {
-  const session = await auth();
-  const tenantId = session?.user?.tenantId;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const tenantId = user?.tenantId;
 
-  if (!tenantId || session?.user?.role !== 'ADMIN') {
+  if (!tenantId || user?.role !== 'ADMIN') {
     redirect('/login');
   }
 

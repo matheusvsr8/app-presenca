@@ -1,15 +1,16 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
 export default async function AdminDashboard() {
-  const session = await auth();
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!session?.user || session.user.role !== 'ADMIN') {
+  if (!user || user?.user_metadata?.role !== 'ADMIN') {
     redirect('/login');
   }
 
-  const tenantId = session.user.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
   const [studentCount, courseCount, sessionCount] = await Promise.all([
     prisma.user.count({ where: { tenantId, role: 'STUDENT' } }),

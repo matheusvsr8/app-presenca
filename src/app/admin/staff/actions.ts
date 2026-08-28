@@ -2,16 +2,34 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import bcrypt from 'bcryptjs';
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+
+// Cria um cliente admin capaz de criar usuários sem deslogar o admin atual
+function getAdminClient() {
+  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error('SUPABASE_SERVICE_ROLE_KEY não configurada no .env');
+  }
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  );
+}
 
 export async function getStaff() {
-  const session = await auth();
-  if (!session || session.user.role !== 'ADMIN') throw new Error('Unauthorized');
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.user_metadata?.role !== 'ADMIN') throw new Error('Unauthorized');
 
   return await prisma.user.findMany({
     where: { 
-      tenantId: session.user.tenantId,
+      tenantId: user.user_metadata.tenantId,
       role: {
         in: ['ADMIN', 'COLLABORATOR']
       }
@@ -21,8 +39,9 @@ export async function getStaff() {
 }
 
 export async function createStaffUser(formData: FormData) {
-  const session = await auth();
-  if (!session || session.user.role !== 'ADMIN') throw new Error('Unauthorized');
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.user_metadata?.role !== 'ADMIN') throw new Error('Unauthorized');
 
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
@@ -33,21 +52,31 @@ export async function createStaffUser(formData: FormData) {
     throw new Error('Preencha todos os campos');
   }
 
-  // Verifica se email ja existe
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    throw new Error('E-mail já está em uso.');
+  const adminClient = getAdminClient();
+
+  const { data: newUser, error } = await adminClient.auth.admin.createUser({
+    email,
+    password,
+    email_confirm: true, // Já confirma o email do staff
+    user_metadata: {
+      name,
+      role,
+      tenantId: user.user_metadata.tenantId
+    }
+  });
+
+  if (error || !newUser.user) {
+    throw new Error(error?.message || 'Erro ao criar usuário no Supabase');
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-
+  // Sincroniza com o Prisma
   await prisma.user.create({
     data: {
+      id: newUser.user.id,
       name,
       email,
-      password: hashedPassword,
       role, // ADMIN ou COLLABORATOR
-      tenantId: session.user.tenantId
+      tenantId: user.user_metadata.tenantId
     }
   });
 
@@ -55,18 +84,27 @@ export async function createStaffUser(formData: FormData) {
 }
 
 export async function deleteStaffUser(id: string) {
-  const session = await auth();
-  if (!session || session.user.role !== 'ADMIN') throw new Error('Unauthorized');
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user.user_metadata?.role !== 'ADMIN') throw new Error('Unauthorized');
 
-  // Impede que o admin exclua a si mesmo
-  if (id === session.user.id) {
+  if (id === user.id) {
     throw new Error('Você não pode excluir sua própria conta.');
   }
 
+  const adminClient = getAdminClient();
+  
+  // Deleta do Supabase Auth
+  const { error } = await adminClient.auth.admin.deleteUser(id);
+  if (error) {
+    throw new Error('Erro ao excluir do Supabase: ' + error.message);
+  }
+
+  // Deleta do Prisma (se o Supabase deletar primeiro, a constraint garante, mas faremos explicito)
   await prisma.user.delete({
     where: { 
       id,
-      tenantId: session.user.tenantId
+      tenantId: user.user_metadata.tenantId
     }
   });
 

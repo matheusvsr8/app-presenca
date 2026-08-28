@@ -1,17 +1,18 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ScannerClient from '../ScannerClient';
 import Link from 'next/link';
 
 export default async function ScannerCoursePage({ params }: { params: { courseId: string } }) {
-  const session = await auth();
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!session?.user || session.user.role === 'STUDENT') {
+  if (!user || user?.user_metadata?.role === 'STUDENT') {
     redirect('/login');
   }
 
-  const tenantId = session.user.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
   const course = await prisma.course.findFirst({
     where: { id: params.courseId, tenantId }

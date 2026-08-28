@@ -23,12 +23,11 @@ model Tenant {
 
 // Representa usuários do sistema: Admin, Colaborador e Aluno
 model User {
-  id        String   @id @default(cuid())
+  id        String   @id // Será o mesmo UUID do auth.users do Supabase
   name      String
   email     String   @unique
-  password  String   // Senha em hash para login simples
-  role      String   @default("STUDENT") // Valores esperados: "ADMIN", "COLLABORATOR", "STUDENT"
-  qrCode    String?  @unique // Código único do aluno, caso seja estudante
+  role      String   @default("STUDENT") // "ADMIN", "COLLABORATOR", "STUDENT"
+  qrCode    String?  @unique
   
   tenantId  String
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)

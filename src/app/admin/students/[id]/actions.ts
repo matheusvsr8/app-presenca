@@ -1,14 +1,15 @@
 'use server';
 
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
 export async function deleteStudent(studentId: string) {
-  const session = await auth();
-  const tenantId = session?.user?.tenantId;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const tenantId = user?.tenantId;
 
-  if (!session?.user || session.user.role !== 'ADMIN' || !tenantId) {
+  if (!user || user?.user_metadata?.role !== 'ADMIN' || !tenantId) {
     throw new Error('Acesso negado');
   }
 

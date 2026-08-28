@@ -1,12 +1,13 @@
 'use server';
 
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
 export async function enrollStudent(courseId: string, studentId: string) {
-  const session = await auth();
-  if (session?.user?.role !== 'ADMIN') throw new Error('Acesso negado');
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user?.role !== 'ADMIN') throw new Error('Acesso negado');
 
   await prisma.enrollment.create({
     data: { courseId, studentId }
@@ -16,8 +17,9 @@ export async function enrollStudent(courseId: string, studentId: string) {
 }
 
 export async function removeStudent(courseId: string, studentId: string) {
-  const session = await auth();
-  if (session?.user?.role !== 'ADMIN') throw new Error('Acesso negado');
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user?.role !== 'ADMIN') throw new Error('Acesso negado');
 
   await prisma.enrollment.delete({
     where: { studentId_courseId: { studentId, courseId } }
@@ -27,10 +29,11 @@ export async function removeStudent(courseId: string, studentId: string) {
 }
 
 export async function deleteCourse(courseId: string) {
-  const session = await auth();
-  const tenantId = session?.user?.tenantId;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const tenantId = user?.tenantId;
   
-  if (session?.user?.role !== 'ADMIN' || !tenantId) throw new Error('Acesso negado');
+  if (user?.role !== 'ADMIN' || !tenantId) throw new Error('Acesso negado');
 
   await prisma.course.delete({
     where: { id: courseId, tenantId }

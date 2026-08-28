@@ -1,18 +1,19 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import styles from './student.module.css';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default async function StudentDashboard() {
-  const session = await auth();
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   
-  if (!session?.user) {
+  if (!user) {
     redirect('/login');
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: user?.id },
   });
 
   return (

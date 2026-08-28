@@ -1,11 +1,12 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import styles from '../students/students.module.css'; // Reusing students styles
 
 export default async function CoursesPage() {
-  const session = await auth();
-  const tenantId = session?.user?.tenantId;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const tenantId = user?.tenantId;
 
   if (!tenantId) return null;
 

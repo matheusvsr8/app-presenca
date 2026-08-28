@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -7,10 +7,11 @@ import EnrollmentManager from './EnrollmentManager';
 import { deleteCourse } from './actions';
 
 export default async function CourseDetailsPage({ params }: { params: { id: string } }) {
-  const session = await auth();
-  const tenantId = session?.user?.tenantId;
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const tenantId = user?.tenantId;
 
-  if (!tenantId || session?.user?.role !== 'ADMIN') redirect('/login');
+  if (!tenantId || user?.role !== 'ADMIN') redirect('/login');
 
   const course = await prisma.course.findFirst({
     where: { id: params.id, tenantId },

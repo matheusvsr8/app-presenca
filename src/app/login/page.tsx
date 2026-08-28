@@ -1,12 +1,35 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useTransition } from 'react';
 import Link from 'next/link';
-import { authenticate } from './actions';
+import { useRouter } from 'next/navigation';
+import { loginAction } from './actions';
+import { toast } from 'sonner';
 import styles from './login.module.css';
 
 export default function LoginPage() {
-  const [errorMessage, dispatch, isPending] = useActionState(authenticate, undefined);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  async function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      try {
+        const result = await loginAction(formData);
+        
+        if (result?.requiresVerification) {
+          toast.warning('Você precisa confirmar seu e-mail antes de entrar.');
+          router.push('/verify-email');
+        } else {
+          toast.success('Login efetuado com sucesso!');
+          // O middleware cuidará do redirecionamento
+          router.push('/'); 
+          router.refresh();
+        }
+      } catch (error: any) {
+        toast.error(error.message || 'Erro ao entrar.');
+      }
+    });
+  }
 
   return (
     <div className={styles.container}>
@@ -14,7 +37,7 @@ export default function LoginPage() {
         <h1 className={styles.logo}>App Presença</h1>
         <p className={styles.subtitle}>Faça login para acessar o sistema</p>
 
-        <form className={styles.form} action={dispatch}>
+        <form className={styles.form} action={handleSubmit}>
           <div className={styles.inputGroup}>
             <label className={styles.label} htmlFor="email">E-mail</label>
             <input
@@ -40,13 +63,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {errorMessage && (
-            <div className={styles.error} aria-live="polite" aria-atomic="true">
-              {errorMessage}
-            </div>
-          )}
-
-          <button className={styles.button} aria-disabled={isPending} type="submit">
+          <button className={styles.button} disabled={isPending} type="submit">
             {isPending ? 'Entrando...' : 'Entrar'}
           </button>
           

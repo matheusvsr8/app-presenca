@@ -1,39 +1,19 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/auth';
+import { type NextRequest } from 'next/server';
+import { updateSession } from '@/utils/supabase/middleware';
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
-  const role = req.auth?.user?.role;
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
+}
 
-  const isAuthRoute = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register');
-  
-  if (isAuthRoute) {
-    if (isLoggedIn) {
-      if (role === 'STUDENT') return NextResponse.redirect(new URL('/student', nextUrl));
-      if (role === 'COLLABORATOR') return NextResponse.redirect(new URL('/scanner', nextUrl));
-      return NextResponse.redirect(new URL('/admin', nextUrl));
-    }
-    return null;
-  }
-
-  if (!isLoggedIn) {
-    return NextResponse.redirect(new URL('/login', nextUrl));
-  }
-
-  // Controle de acesso por perfis
-  if (nextUrl.pathname.startsWith('/admin') && role !== 'ADMIN') {
-    return Response.redirect(new URL('/', nextUrl)); // Redireciona para o root que vai rotear corretamente
-  }
-
-  if (nextUrl.pathname.startsWith('/scanner') && role === 'STUDENT') {
-    return Response.redirect(new URL('/student', nextUrl));
-  }
-
-  return null;
-});
-
-// Optionally, don't invoke Middleware on some paths
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - images, css, etc.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };
