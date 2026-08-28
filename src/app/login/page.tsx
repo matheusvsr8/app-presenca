@@ -1,15 +1,17 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { loginAction } from './actions';
 import { toast } from 'sonner';
+import { Eye, EyeOff } from 'lucide-react';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleSubmit(formData: FormData) {
     startTransition(async () => {
@@ -52,15 +54,38 @@ export default function LoginPage() {
           
           <div className={styles.inputGroup}>
             <label className={styles.label} htmlFor="password">Senha</label>
-            <input
-              className={styles.input}
-              id="password"
-              type="password"
-              name="password"
-              placeholder="••••••••"
-              required
-              minLength={6}
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                className={styles.input}
+                id="password"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="••••••••"
+                required
+                minLength={6}
+                style={{ width: '100%', paddingRight: '2.5rem' }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'rgba(255,255,255,0.5)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
           <button className={styles.button} disabled={isPending} type="submit">
