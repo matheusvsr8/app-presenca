@@ -17,10 +17,16 @@ export default function RegisterForm({ courses }: { courses: { id: string, name:
     startTransition(async () => {
       try {
         const result = await registerStudent(formData);
+        
+        if (result?.error) {
+          toast.error(result.error);
+          return;
+        }
+
         toast.success('Conta criada! Verifique seu e-mail.');
         router.push(`/verify-email?email=${encodeURIComponent(result.email)}`);
       } catch (error: any) {
-        toast.error(error.message || 'Erro ao criar conta.');
+        toast.error(error.message || 'Erro inesperado.');
       }
     });
   }

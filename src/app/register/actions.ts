@@ -11,13 +11,13 @@ export async function registerStudent(formData: FormData) {
   const courseId = formData.get('courseId') as string;
 
   if (!name || !email || !password || !courseId) {
-    throw new Error('Preencha todos os campos obrigatórios.');
+    return { error: 'Preencha todos os campos obrigatórios.' };
   }
 
   // Buscar o curso para pegar o tenantId antes de cadastrar
   const course = await prisma.course.findUnique({ where: { id: courseId } });
   if (!course) {
-    throw new Error('Curso não encontrado.');
+    return { error: 'Curso não encontrado.' };
   }
 
   const supabase = await createClient();
@@ -38,7 +38,7 @@ export async function registerStudent(formData: FormData) {
   });
 
   if (error) {
-    throw new Error(error.message);
+    return { error: error.message };
   }
 
   // Retornamos o email para que a UI direcione para /verify-email
