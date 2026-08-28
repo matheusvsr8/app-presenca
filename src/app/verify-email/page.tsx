@@ -54,14 +54,14 @@ function VerifyEmailForm() {
       </div>
       
       <div className={styles.inputGroup}>
-        <label className={styles.label}>Código de 6 dígitos</label>
+        <label className={styles.label}>Código de Segurança</label>
         <input
           className={styles.input}
           type="text"
           value={code}
           onChange={(e) => setCode(e.target.value)}
-          placeholder="000000"
-          maxLength={6}
+          placeholder="00000000"
+          maxLength={8}
           required
           style={{ fontSize: '1.5rem', textAlign: 'center', letterSpacing: '0.5rem' }}
         />
