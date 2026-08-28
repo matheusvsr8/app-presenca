@@ -10,7 +10,7 @@ export async function loginAction(formData: FormData) {
     throw new Error('E-mail e senha são obrigatórios.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { error } = await supabase.auth.signInWithPassword({
     email,

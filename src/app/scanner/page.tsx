@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { LogOut } from 'lucide-react';
 
 export default async function ScannerDashboard() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user || user?.user_metadata?.role === 'STUDENT') {
@@ -25,7 +25,7 @@ export default async function ScannerDashboard() {
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
         <div>
           <h1 style={{ color: 'var(--primary)', margin: 0, fontSize: '1.5rem' }}>Selecionar Turma</h1>
-          <p style={{ opacity: 0.7, margin: 0 }}>Colaborador: {(user?.user_metadata || user).name}</p>
+          <p style={{ opacity: 0.7, margin: 0 }}>Colaborador: {user?.user_metadata?.name}</p>
         </div>
         <a href="/api/auth/signout" style={{ color: 'var(--error)' }} title="Sair">
           <LogOut size={24} />

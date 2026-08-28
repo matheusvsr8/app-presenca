@@ -4,9 +4,9 @@ import Link from 'next/link';
 import styles from './students.module.css';
 
 export default async function StudentsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const tenantId = user?.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
   if (!tenantId) return null;
 

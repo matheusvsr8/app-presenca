@@ -4,11 +4,11 @@ import { redirect } from 'next/navigation';
 import styles from '../students/students.module.css';
 
 export default async function ReportsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const tenantId = user?.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
-  if (!tenantId || user?.role !== 'ADMIN') redirect('/login');
+  if (!tenantId || user?.user_metadata?.role !== 'ADMIN') redirect('/login');
 
   // Relatório simples: lista cursos e puxa dados agregados
   const courses = await prisma.course.findMany({

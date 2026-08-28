@@ -5,7 +5,7 @@ import styles from './student.module.css';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default async function StudentDashboard() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {

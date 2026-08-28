@@ -23,7 +23,7 @@ function getAdminClient() {
 }
 
 export async function getStaff() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user.user_metadata?.role !== 'ADMIN') throw new Error('Unauthorized');
 
@@ -39,7 +39,7 @@ export async function getStaff() {
 }
 
 export async function createStaffUser(formData: FormData) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user.user_metadata?.role !== 'ADMIN') throw new Error('Unauthorized');
 
@@ -84,7 +84,7 @@ export async function createStaffUser(formData: FormData) {
 }
 
 export async function deleteStaffUser(id: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user.user_metadata?.role !== 'ADMIN') throw new Error('Unauthorized');
 

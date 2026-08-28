@@ -7,11 +7,11 @@ import styles from '../students.module.css';
 import { deleteStudent } from './actions';
 
 export default async function StudentProfilePage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const tenantId = user?.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
-  if (!tenantId || user?.role !== 'ADMIN') {
+  if (!tenantId || user?.user_metadata?.role !== 'ADMIN') {
     redirect('/login');
   }
 

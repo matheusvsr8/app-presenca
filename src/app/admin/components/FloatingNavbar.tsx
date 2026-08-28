@@ -41,7 +41,7 @@ export default function FloatingNavbar() {
       <button 
         onClick={async () => {
           const { createClient } = await import('@/utils/supabase/client');
-          const supabase = createClient();
+          const supabase = await createClient();
           await supabase.auth.signOut();
           window.location.href = '/login';
         }}

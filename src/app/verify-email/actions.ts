@@ -8,7 +8,7 @@ export async function verifyEmailAction(email: string, token: string) {
     throw new Error('E-mail e código são obrigatórios.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data, error } = await supabase.auth.verifyOtp({
     email,

@@ -20,7 +20,7 @@ export async function registerStudent(formData: FormData) {
     throw new Error('Curso não encontrado.');
   }
 
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // O Supabase enviará o e-mail automaticamente de acordo com as configurações do painel
   const { data, error } = await supabase.auth.signUp({

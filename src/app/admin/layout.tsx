@@ -9,7 +9,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user || user?.user_metadata?.role !== 'ADMIN') {
@@ -33,7 +33,7 @@ export default async function AdminLayout({
             <User size={14} color="var(--background)" strokeWidth={3} />
           </div>
           <span className={styles.userName}>
-            {user?.name}
+            {user?.user_metadata?.name}
           </span>
         </div>
       </header>

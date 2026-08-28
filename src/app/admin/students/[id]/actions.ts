@@ -5,9 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 
 export async function deleteStudent(studentId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const tenantId = user?.tenantId;
+  const tenantId = user?.user_metadata?.tenantId;
 
   if (!user || user?.user_metadata?.role !== 'ADMIN' || !tenantId) {
     throw new Error('Acesso negado');

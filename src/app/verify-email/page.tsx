@@ -1,12 +1,12 @@
 'use client';
 
-import { useTransition, useState, useEffect } from 'react';
+import { useTransition, useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { verifyEmailAction } from './actions';
 import { toast } from 'sonner';
 import styles from '../login/login.module.css';
 
-export default function VerifyEmailPage() {
+function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
@@ -33,44 +33,51 @@ export default function VerifyEmailPage() {
   }
 
   return (
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <div className={styles.inputGroup}>
+        <label className={styles.label}>E-mail</label>
+        <input
+          className={styles.input}
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="seu@email.com"
+          required
+          readOnly={!!searchParams.get('email')}
+          style={{ opacity: searchParams.get('email') ? 0.7 : 1 }}
+        />
+      </div>
+      
+      <div className={styles.inputGroup}>
+        <label className={styles.label}>Código de 6 dígitos</label>
+        <input
+          className={styles.input}
+          type="text"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          placeholder="000000"
+          maxLength={6}
+          required
+          style={{ fontSize: '1.5rem', textAlign: 'center', letterSpacing: '0.5rem' }}
+        />
+      </div>
+
+      <button className={styles.button} disabled={isPending || code.length < 6} type="submit" style={{ marginTop: '1rem' }}>
+        {isPending ? 'Verificando...' : 'Verificar E-mail'}
+      </button>
+    </form>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
     <div className={styles.container}>
       <div className={`${styles.card} glass animate-fade-in`} style={{ maxWidth: '400px' }}>
         <h1 className={styles.logo}>Verificação</h1>
         <p className={styles.subtitle}>Digite o código enviado para o seu e-mail.</p>
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>E-mail</label>
-            <input
-              className={styles.input}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
-              required
-              readOnly={!!searchParams.get('email')}
-              style={{ opacity: searchParams.get('email') ? 0.7 : 1 }}
-            />
-          </div>
-          
-          <div className={styles.inputGroup}>
-            <label className={styles.label}>Código de 6 dígitos</label>
-            <input
-              className={styles.input}
-              type="text"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              placeholder="000000"
-              maxLength={6}
-              required
-              style={{ fontSize: '1.5rem', textAlign: 'center', letterSpacing: '0.5rem' }}
-            />
-          </div>
-
-          <button className={styles.button} disabled={isPending || code.length < 6} type="submit" style={{ marginTop: '1rem' }}>
-            {isPending ? 'Verificando...' : 'Verificar E-mail'}
-          </button>
-        </form>
+        <Suspense fallback={<div>Carregando...</div>}>
+          <VerifyEmailForm />
+        </Suspense>
       </div>
     </div>
   );

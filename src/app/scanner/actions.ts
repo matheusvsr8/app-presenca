@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 
 export async function registerAttendance(qrCode: string, sessionId: string) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user || user?.user_metadata?.role === 'STUDENT') {
     return { success: false, error: 'Não autorizado.' };
