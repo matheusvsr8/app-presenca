@@ -1,0 +1,51 @@
+.floatingNav {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(26, 26, 26, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 1rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  z-index: 50;
+  width: 90%;
+  max-width: 400px; /* Impede de ficar gigante no Desktop, mas amigável no Mobile */
+}
+
+.navItem {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color var(--transition-normal);
+  cursor: pointer;
+}
+
+.navItem:hover {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.navItem.active {
+  color: var(--foreground);
+}
+
+/* O pequeno traço/brilho verde embaixo do ícone ativo */
+.activeIndicator {
+  position: absolute;
+  bottom: 2px;
+  width: 16px;
+  height: 3px;
+  border-radius: 99px;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}

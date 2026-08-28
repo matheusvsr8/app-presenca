@@ -1,0 +1,82 @@
+.layoutWrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: transparent;
+  flex-wrap: wrap; /* Importante para não vazar no mobile */
+  gap: 1rem;
+}
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoIcon {
+  filter: drop-shadow(0 0 8px rgba(0, 217, 95, 0.5));
+  display: flex;
+}
+
+.logoText {
+  color: var(--foreground);
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.userPill {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--card-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-sm);
+}
+
+.avatar {
+  background: var(--primary);
+  border-radius: 50%;
+  padding: 4px;
+  display: flex;
+}
+
+.userName {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+  padding-bottom: 6rem; /* Espaço para a navbar flutuante não tapar o conteúdo */
+}
+
+/* --- MEDIA QUERIES MOBILE --- */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+  }
+  
+  .mainContent {
+    padding: 1rem;
+    padding-bottom: 6rem;
+  }
+  
+  .userName {
+    /* No celular muito pequeno, pode esconder o nome e deixar só o avatar */
+    display: none;
+  }
+}

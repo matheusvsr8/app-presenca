@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Representa a organização/empresa
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  courses   Course[]
+}
+
+// Representa usuários do sistema: Admin, Colaborador e Aluno
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // Senha em hash para login simples
+  role      String   @default("STUDENT") // Valores esperados: "ADMIN", "COLLABORATOR", "STUDENT"
+  qrCode    String?  @unique // Código único do aluno, caso seja estudante
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  
+  enrollments Enrollment[]
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Curso ou Turma
+model Course {
+  id        String   @id @default(cuid())
+  name      String
+  
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  sessions  Session[]
+  enrollments Enrollment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// Sessão (uma aula específica em um dia)
+model Session {
+  id        String   @id @default(cuid())
+  date      DateTime
+  
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  attendances Attendance[]
+
+  createdAt DateTime @default(now())
+}
+
+// Vincula um aluno a um curso (Matrícula)
+model Enrollment {
+  id        String   @id @default(cuid())
+  
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([studentId, courseId])
+}
+
+// Registro de presença de um aluno em uma sessão
+model Attendance {
+  id        String   @id @default(cuid())
+  
+  sessionId String
+  session   Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  studentId String
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, studentId])
+}
