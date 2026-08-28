@@ -36,7 +36,7 @@ export default function LoginPage() {
   return (
     <div className={styles.container}>
       <div className={`${styles.card} glass animate-fade-in`}>
-        <h1 className={styles.logo}>App Presença</h1>
+        <h1 className={styles.logo}>LogQR</h1>
         <p className={styles.subtitle}>Faça login para acessar o sistema</p>
 
         <form className={styles.form} action={handleSubmit}>

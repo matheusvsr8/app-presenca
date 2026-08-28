@@ -24,7 +24,7 @@ export default async function AdminLayout({
             <Hexagon fill="var(--primary)" color="var(--primary)" size={28} />
           </div>
           <h2 className={styles.logoText}>
-            App<span style={{ color: 'var(--primary)' }}>Presença</span>
+            Log<span style={{ color: 'var(--primary)' }}>QR</span>
           </h2>
         </div>
 
