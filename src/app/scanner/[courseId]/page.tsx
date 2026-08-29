@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import ScannerClient from '../ScannerClient';
 import SessionManagerModal from './SessionManagerModal';
+import ClassAttendanceList from './ClassAttendanceList';
 import Link from 'next/link';
 import Logo from '@/components/Logo';
 
@@ -40,9 +41,16 @@ export default async function ScannerCoursePage({
       sessions: {
         orderBy: { date: 'desc' },
         include: {
-          _count: {
-            select: { attendances: true }
+          attendances: {
+            include: {
+              student: true
+            }
           }
+        }
+      },
+      enrollments: {
+        include: {
+          student: true
         }
       }
     }
@@ -69,8 +77,10 @@ export default async function ScannerCoursePage({
         date: new Date()
       },
       include: {
-        _count: {
-          select: { attendances: true }
+        attendances: {
+          include: {
+            student: true
+          }
         }
       }
     });
@@ -85,11 +95,29 @@ export default async function ScannerCoursePage({
   const formattedSessions = classSessions.map(s => ({
     id: s.id,
     date: s.date.toISOString(),
-    attendanceCount: s._count.attendances
+    attendanceCount: s.attendances.length
   }));
 
+  // Monta a lista completa de alunos matriculados com status Presente vs Falta para esta sessão
+  const studentsAttendanceStatus = course.enrollments.map(enrollment => {
+    const student = enrollment.student;
+    const attendance = activeSession.attendances.find(a => a.studentId === student.id);
+    return {
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      isPresent: !!attendance,
+      checkedInAt: attendance ? new Date(attendance.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : undefined
+    };
+  }).sort((a, b) => {
+    // Presentes primeiro, depois por ordem alfabética
+    if (a.isPresent && !b.isPresent) return -1;
+    if (!a.isPresent && b.isPresent) return 1;
+    return a.name.localeCompare(b.name);
+  });
+
   return (
-    <div style={{ padding: '1.25rem 1rem', maxWidth: '580px', margin: '0 auto', textAlign: 'center', paddingBottom: '6rem' }}>
+    <div style={{ padding: '1.25rem 1rem', maxWidth: '600px', margin: '0 auto', textAlign: 'center', paddingBottom: '6rem' }}>
       {/* Topo com Logo e Trocar Turma */}
       <header style={{ 
         display: 'flex', 
@@ -128,6 +156,12 @@ export default async function ScannerCoursePage({
 
       {/* Leitor de Câmera Traseira Direta */}
       <ScannerClient sessionId={activeSession.id} />
+
+      {/* Lista de Chamada em Tempo Real: Presenças vs Faltas da Turma */}
+      <ClassAttendanceList
+        students={studentsAttendanceStatus}
+        sessionDate={activeSession.date.toISOString()}
+      />
     </div>
   );
 }
