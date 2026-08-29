@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -9,7 +10,12 @@ export default async function Home() {
     redirect('/login');
   }
 
-  const role = user?.user_metadata?.role;
+  // Busca o papel REAL e ATUALIZADO no banco de dados em tempo real
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id }
+  });
+
+  const role = dbUser?.role || user?.user_metadata?.role;
 
   if (role === 'ADMIN') {
     redirect('/admin');
@@ -18,6 +24,4 @@ export default async function Home() {
   } else {
     redirect('/student');
   }
-
-  return null;
 }

@@ -33,6 +33,13 @@ export default async function StudentDashboard() {
     }
   });
 
+  // Se o usuário foi promovido no banco, redireciona em tempo real!
+  if (dbUser?.role === 'COLLABORATOR') {
+    redirect('/scanner');
+  } else if (dbUser?.role === 'ADMIN') {
+    redirect('/admin');
+  }
+
   const enrollment = dbUser?.enrollments[0];
   const course = enrollment?.course;
   

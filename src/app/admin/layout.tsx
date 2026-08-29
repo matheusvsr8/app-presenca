@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
 import FloatingNavbar from './components/FloatingNavbar';
 import { User } from 'lucide-react';
 import Logo from '@/components/Logo';
@@ -13,8 +14,22 @@ export default async function AdminLayout({
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user || user?.user_metadata?.role !== 'ADMIN') {
+  if (!user) {
     redirect('/login');
+  }
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id }
+  });
+
+  const role = dbUser?.role || user?.user_metadata?.role;
+
+  if (role !== 'ADMIN') {
+    if (role === 'COLLABORATOR') {
+      redirect('/scanner');
+    } else {
+      redirect('/student');
+    }
   }
 
   return (

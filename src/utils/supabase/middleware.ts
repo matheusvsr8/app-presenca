@@ -41,10 +41,6 @@ export async function updateSession(request: NextRequest) {
   const nextUrl = request.nextUrl;
   const pathname = nextUrl.pathname;
   const isLoggedIn = !!user;
-  const role = user?.user_metadata?.role;
-
-  // Determina a rota principal do usuário autenticado
-  const userHome = role === 'ADMIN' ? '/admin' : role === 'COLLABORATOR' ? '/scanner' : '/student';
 
   const isAuthRoute = 
     pathname.startsWith('/login') || 
@@ -56,37 +52,14 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/scanner') || 
     pathname.startsWith('/student');
 
-  // 1. Se estiver nas rotas de login/registro e já estiver logado -> envia para a home dele
+  // 1. Se estiver logado e tentar acessar tela de login/cadastro -> envia para a raiz (que roteia via banco)
   if (isAuthRoute && isLoggedIn) {
-    if (pathname !== userHome) {
-      return NextResponse.redirect(new URL(userHome, nextUrl));
-    }
-    return supabaseResponse;
+    return NextResponse.redirect(new URL('/', nextUrl));
   }
 
-  // 2. Se NÃO estiver logado e tentar acessar qualquer rota protegida -> manda para o login
+  // 2. Se NÃO estiver logado e tentar rota protegida -> manda para o login
   if (!isLoggedIn && isProtectedRoute) {
-    if (pathname !== '/login') {
-      return NextResponse.redirect(new URL('/login', nextUrl));
-    }
-    return supabaseResponse;
-  }
-
-  // 3. Validação de permissões para quem ESTÁ logado:
-  if (isLoggedIn) {
-    // Apenas ADMIN pode acessar rotas /admin
-    if (pathname.startsWith('/admin') && role !== 'ADMIN') {
-      if (pathname !== userHome) {
-        return NextResponse.redirect(new URL(userHome, nextUrl));
-      }
-    }
-
-    // Apenas ADMIN ou COLLABORATOR podem acessar /scanner
-    if (pathname.startsWith('/scanner') && role !== 'ADMIN' && role !== 'COLLABORATOR') {
-      if (pathname !== '/student') {
-        return NextResponse.redirect(new URL('/student', nextUrl));
-      }
-    }
+    return NextResponse.redirect(new URL('/login', nextUrl));
   }
 
   return supabaseResponse;
