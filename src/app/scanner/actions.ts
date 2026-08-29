@@ -77,6 +77,7 @@ export async function registerAttendance(qrCode: string, sessionId: string) {
 
     return { 
       success: true, 
+      studentName: student.name,
       message: `Presença registrada para ${student.name}!` 
     };
   } catch (error) {
