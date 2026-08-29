@@ -55,10 +55,10 @@ export default function SplashScreen() {
         {/* Imagem do QR Cyber com Scanner Laser */}
         <div className="qr-wrapper">
           <Image
-            src="/cyber-qr.jpg"
+            src="/logo.png"
             alt="LogQR Cyber"
-            width={160}
-            height={160}
+            width={180}
+            height={180}
             priority
             className="qr-image"
           />
