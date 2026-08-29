@@ -18,36 +18,41 @@
 
 ## 📖 Sobre o Projeto
 
-O **LogQR** é uma solução completa para controle de frequência em salas de aula, eventos e instituições de ensino. O sistema substitui as chamadas tradicionais em papel e formulários suscetíveis a fraudes por um fluxo moderno: o aluno gera seu **QR Code dinâmico diário** diretamente pelo seu celular, e o professor/colaborador realiza a leitura instantânea pela câmera.
+O **LogQR** é uma solução completa para controle de frequência em salas de aula, eventos e instituições de ensino. O sistema substitui as chamadas tradicionais em papel e formulários suscetíveis a fraudes por um fluxo moderno: o aluno gera seu **QR Code dinâmico diário** diretamente pelo seu celular, e o professor/colaborador realiza a leitura instantânea pela câmera traseira nativa, registrando presenças e faltas em tempo real no banco de dados.
 
 ---
 
-## ✨ Principais Funcionalidades
+## ✨ Principais Funcionalidades da Versão 1.0.0
 
 ### 🛡️ 1. QR Code Diário com Proteção Anti-Fraude
-- **Geração Sob Demanda:** O estudante clica em *"Gerar QR Code de Hoje"* para carregar seu código.
-- **Validação Criptográfica HMAC SHA-256:** O QR Code é assinado com chave secreta e vinculado à data do dia (`YYYY-MM-DD`). 
-- **Prints e Fotos Rejeitados:** Códigos de dias anteriores são automaticamente bloqueados pelo leitor, impedindo que alunos compartilhem prints com colegas faltantes.
+- **Geração Sob Demanda:** O estudante clica em *"⚡ Gerar QR Code de Hoje"* para carregar seu código.
+- **Validação Criptográfica HMAC SHA-256:** O QR Code é assinado com chave secreta do servidor e vinculado à data do dia (`YYYY-MM-DD`). 
+- **Prints e Fotos Rejeitados:** Códigos de dias anteriores são automaticamente invalidados pelo leitor, impedindo fraudes.
+- **Alto Contraste:** Renderização otimizada para leitura instantânea por qualquer câmera de smartphone.
 
 ### 👨‍💼 2. Painel do Administrador (`/admin`)
-- **Gestão de Alunos:** Cadastro, edição, perfil detalhado e gerenciador de cargos com 1 clique (Aluno ⇄ Colaborador ⇄ Administrador).
-- **Gestão de Turmas:** Criação de cursos e gerenciador de matrículas dinâmico em tempo real.
-- **Gestão de Equipe:** Controle de professores, colaboradores e outros administradores.
-- **Relatórios de Frequência:** Visualização detalhada do percentual de presença de cada aluno, histórico de presenças e cálculo automático de faltas.
+- **Dashboard Central:** Métricas em tempo real de turmas, alunos e chamadas realizadas.
+- **Design Híbrido Responsivo:** Tabelas completas no Desktop e **Cards Nativos no Mobile** (sem necessidade de rolagem lateral).
+- **Gestão de Alunos (`/admin/students`):** Cadastro, edição, visualização de perfis e alteração de cargos em tempo real com sincronização Postgres.
+- **Gestão de Turmas (`/admin/courses`):** Criação de cursos e gerenciamento de matrículas dinâmico com Server Actions.
+- **Gestão de Equipe (`/admin/staff`):** Controle de colaboradores, professores e administradores.
+- **Relatórios de Frequência (`/admin/reports`):** Métricas consolidadas com taxa percentual de presença (`%`), total de aulas e contagem de presenças.
 
 ### 📱 3. Módulo do Colaborador / Professor (`/scanner`)
-- **Seleção de Turma:** Escolha rápida da turma para iniciar a aula.
-- **Criação de Sessão Automática:** O sistema identifica o dia atual e abre a sessão de aula automaticamente.
-- **Leitor Contínuo por Câmera:** Leitura ultra-rápida via `html5-qrcode` com feedback visual imediato via notificações Toast.
+- **Seleção de Turma:** Cards modernos com botão de ação rápida *"Abrir Câmera e Escanear"*.
+- **Abertura Direta da Câmera Traseira:** Inicialização instantânea sem menus intermediários de escolha.
+- **Sessão Automática:** Detecção e criação automática da chamada do dia.
+- **Card de Confirmação em Tempo Real:** Overlay visual exibindo o nome do aluno identificado, horário do check-in e feedback sonoro agradável.
 
 ### 🎓 4. Portal do Aluno (`/student`)
-- **Carteirinha Digital:** Informações da matrícula, turma e contadores de presença e faltas.
-- **Visualizador de QR Code:** Exibição clara e de alto contraste em preto e branco para leitura instantânea.
+- **Carteirinha Digital:** Dados cadastrais, curso atual e placar com **Presenças**, **Faltas** e **Taxa de Frequência (%)**.
+- **Gerador de QR Code do Dia:** Botão interativo para exibir e ocultar o QR Code diário.
+- **Histórico Aula por Aula:** Lista cronológica detalhada de todas as aulas com selo visual 🟢 **PRESENTE** (com horário do check-in) ou 🔴 **FALTA** (caso o aluno não tenha comparecido).
 
 ### 📲 5. Aplicativo Mobile Nativo (Android APK)
-- Encapsulado com **Capacitor.js** para execução nativa no Android.
-- Tela de abertura (Splash Screen) animada em estilo cyber futurista.
-- Acesso à câmera integrado e suporte a permissões de hardware.
+- Encapsulado com **Capacitor.js** gerando o executável oficial **`LogQR.apk`**.
+- Tela de abertura (Splash Screen) animada em estilo cyber com scanner laser.
+- Sincronização em tempo real com a versão web sem necessidade de reinstalação para atualizações frontend.
 
 ---
 
@@ -60,7 +65,7 @@ O **LogQR** é uma solução completa para controle de frequência em salas de a
 | **Banco de Dados** | [PostgreSQL (Supabase)](https://supabase.com/) |
 | **ORM** | [Prisma](https://www.prisma.io/) (com Connection Pooling) |
 | **Autenticação** | [Supabase Auth](https://supabase.com/auth) (Cookies SSR + Trigger PL/pgSQL) |
-| **Leitor de Câmera** | [html5-qrcode](https://github.com/mebjas/html5-qrcode) |
+| **Leitor de Câmera** | [html5-qrcode](https://github.com/mebjas/html5-qrcode) (Câmera Traseira Direta) |
 | **Gerador de QR Code** | [qrcode.react](https://github.com/zpao/qrcode.react) |
 | **Mobile Wrapper** | [Capacitor](https://capacitorjs.com/) (Android Studio) |
 | **Notificações** | [Sonner](https://sonner.emilkowal.ski/) |
@@ -130,7 +135,7 @@ npm install
 ```
 
 ### 4. Configurar as Variáveis de Ambiente
-Crie um arquivo `.env` na raiz do projeto com as seguintes chaves:
+Crie um arquivo `.env` na raiz do projeto:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://sua-url-supabase.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-chave-anon-supabase
@@ -153,7 +158,7 @@ Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 
 ---
 
-## 📱 Como Gerar o Aplicativo Android (.APK)
+## 📱 Como Gerar o Aplicativo Android (LogQR.apk)
 
 1. Sincronize as configurações do Capacitor:
    ```bash
@@ -166,7 +171,7 @@ Abra [http://localhost:3000](http://localhost:3000) no seu navegador.
 3. No menu superior do Android Studio, clique em:
    👉 **`Build` ➔ `Build Bundle(s) / APK(s)` ➔ `Build APK(s)`**
 4. O arquivo final estará disponível na pasta:
-   📂 `android/app/build/outputs/apk/debug/app-debug.apk`
+   📂 `android/app/build/outputs/apk/debug/LogQR.apk`
 
 ---
 
