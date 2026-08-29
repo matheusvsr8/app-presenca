@@ -28,14 +28,14 @@ export default function FloatingNavbar() {
 
         return (
           <Link key={item.href} href={item.href} className={`${styles.navItem} ${isActive ? styles.active : ''}`} title={item.label}>
-            <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
+            <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
             {isActive && <div className={styles.activeIndicator} />}
           </Link>
         );
       })}
       
-      {/* Separador */}
-      <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.1)' }} />
+      {/* Separador Sutil */}
+      <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.12)', flexShrink: 0, margin: '0 2px' }} />
       
       {/* Botão de Sair */}
       <button 
@@ -47,9 +47,9 @@ export default function FloatingNavbar() {
         }}
         className={styles.navItem} 
         title="Sair" 
-        style={{ color: 'var(--error)', background: 'transparent', border: 'none', cursor: 'pointer' }}
+        style={{ color: '#ef4444', background: 'transparent', border: 'none', cursor: 'pointer', padding: '0.55rem 0.3rem' }}
       >
-        <LogOut size={22} strokeWidth={2} />
+        <LogOut size={20} strokeWidth={2} />
       </button>
     </nav>
   );

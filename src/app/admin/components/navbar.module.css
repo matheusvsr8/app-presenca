@@ -1,22 +1,23 @@
 .floatingNav {
   position: fixed;
-  bottom: 1.5rem;
+  bottom: 1.25rem;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(26, 26, 26, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(15, 20, 17, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 217, 95, 0.18);
   border-radius: 9999px;
-  padding: 0.5rem 1rem;
+  padding: 0.35rem 0.6rem;
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  gap: 1rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  justify-content: space-between;
+  gap: 0.2rem;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 217, 95, 0.08);
   z-index: 50;
-  width: 90%;
-  max-width: 400px; /* Impede de ficar gigante no Desktop, mas amigável no Mobile */
+  width: calc(100% - 1.5rem);
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .navItem {
@@ -25,14 +26,17 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  padding: 0.55rem 0.4rem;
   color: rgba(255, 255, 255, 0.5);
-  transition: color var(--transition-normal);
+  transition: color var(--transition-normal), transform var(--transition-fast);
   cursor: pointer;
+  border-radius: 12px;
+  flex: 1;
+  min-width: 0;
 }
 
 .navItem:hover {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .navItem.active {
