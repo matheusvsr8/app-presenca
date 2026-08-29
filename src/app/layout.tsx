@@ -7,12 +7,15 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LogQR",
-  description: "Plataforma de controle de presença",
+  title: "LogQR - Controle Inteligente de Presença",
+  description: "Plataforma de controle de presença escolar e acadêmica via QR Code dinâmico.",
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: [
+      { url: '/logo.png', type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' }
+    ],
+    shortcut: '/logo.png',
+    apple: '/logo.png',
   }
 };
 
