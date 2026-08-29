@@ -11,7 +11,6 @@ export async function updateSession(request: NextRequest) {
 
   if (!supabaseUrl || !supabaseKey) {
     console.error("ERRO CRÍTICO: Variáveis do Supabase ausentes no ambiente!");
-    // Se as variáveis estiverem ausentes (ex: na Vercel), o app não tem como funcionar.
     return NextResponse.next(); 
   }
 
@@ -43,31 +42,46 @@ export async function updateSession(request: NextRequest) {
   const nextUrl = request.nextUrl;
   const isLoggedIn = !!user;
   const role = user?.user_metadata?.role;
-  const isAuthRoute = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register') || nextUrl.pathname.startsWith('/verify-email');
+
+  // Função utilitária para descobrir a rota de destino do usuário autenticado
+  const getHomeRoute = (userRole?: string) => {
+    if (userRole === 'ADMIN') return '/admin';
+    if (userRole === 'COLLABORATOR') return '/scanner';
+    return '/student';
+  };
+
+  const isAuthRoute = 
+    nextUrl.pathname.startsWith('/login') || 
+    nextUrl.pathname.startsWith('/register') || 
+    nextUrl.pathname.startsWith('/verify-email');
   
+  // 1. Se já estiver logado e tentar abrir rotas de login/cadastro, manda direto para a sua área
   if (isAuthRoute) {
     if (isLoggedIn) {
-      if (role === 'STUDENT') return NextResponse.redirect(new URL('/student', nextUrl));
-      if (role === 'COLLABORATOR') return NextResponse.redirect(new URL('/scanner', nextUrl));
-      return NextResponse.redirect(new URL('/admin', nextUrl));
+      return NextResponse.redirect(new URL(getHomeRoute(role), nextUrl));
     }
     return supabaseResponse;
   }
 
+  // 2. Se NÃO estiver logado e tentar rota protegida (diferente da splash raiz)
   if (!isLoggedIn && nextUrl.pathname !== '/') {
     return NextResponse.redirect(new URL('/login', nextUrl));
   }
 
-  if (nextUrl.pathname.startsWith('/admin') && role !== 'ADMIN') {
-    return NextResponse.redirect(new URL('/login', nextUrl));
-  }
+  // 3. Proteção das áreas: se logado mas sem permissão para aquela rota específica,
+  // redireciona DIRETO para a Home correta do usuário (evitando ping-pong com /login)
+  if (isLoggedIn) {
+    if (nextUrl.pathname.startsWith('/admin') && role !== 'ADMIN') {
+      return NextResponse.redirect(new URL(getHomeRoute(role), nextUrl));
+    }
 
-  if (nextUrl.pathname.startsWith('/scanner') && role !== 'ADMIN' && role !== 'COLLABORATOR') {
-    return NextResponse.redirect(new URL('/login', nextUrl));
-  }
+    if (nextUrl.pathname.startsWith('/scanner') && role !== 'ADMIN' && role !== 'COLLABORATOR') {
+      return NextResponse.redirect(new URL(getHomeRoute(role), nextUrl));
+    }
 
-  if (nextUrl.pathname.startsWith('/student') && role !== 'STUDENT') {
-    return NextResponse.redirect(new URL('/login', nextUrl));
+    if (nextUrl.pathname.startsWith('/student') && role !== 'STUDENT') {
+      return NextResponse.redirect(new URL(getHomeRoute(role), nextUrl));
+    }
   }
 
   return supabaseResponse;

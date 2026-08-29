@@ -11,12 +11,12 @@ export default async function Home() {
 
   const role = user?.user_metadata?.role;
 
-  if (role === 'STUDENT') {
-    redirect('/student');
+  if (role === 'ADMIN') {
+    redirect('/admin');
   } else if (role === 'COLLABORATOR') {
     redirect('/scanner');
   } else {
-    redirect('/admin');
+    redirect('/student');
   }
 
   return null;
