@@ -6,15 +6,20 @@ import styles from '../../students/students.module.css';
 import EnrollmentManager from './EnrollmentManager';
 import { deleteCourse } from './actions';
 
-export default async function CourseDetailsPage({ params }: { params: { id: string } }) {
+export default async function CourseDetailsPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> | { id: string } 
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const tenantId = user?.user_metadata?.tenantId;
 
   if (!tenantId || user?.user_metadata?.role !== 'ADMIN') redirect('/login');
 
+  const resolvedParams = await Promise.resolve(params);
   const course = await prisma.course.findFirst({
-    where: { id: params.id, tenantId },
+    where: { id: resolvedParams.id, tenantId },
     include: { enrollments: true }
   });
 

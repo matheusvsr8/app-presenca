@@ -7,7 +7,11 @@ import styles from '../students.module.css';
 import { deleteStudent } from './actions';
 import ChangeRoleButton from './ChangeRoleButton';
 
-export default async function StudentProfilePage({ params }: { params: { id: string } }) {
+export default async function StudentProfilePage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> | { id: string } 
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const tenantId = user?.user_metadata?.tenantId;
@@ -16,8 +20,9 @@ export default async function StudentProfilePage({ params }: { params: { id: str
     redirect('/login');
   }
 
+  const resolvedParams = await Promise.resolve(params);
   const student = await prisma.user.findFirst({
-    where: { id: params.id, tenantId },
+    where: { id: resolvedParams.id, tenantId },
   });
 
   if (!student) {
