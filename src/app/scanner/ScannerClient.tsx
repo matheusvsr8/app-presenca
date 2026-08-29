@@ -30,7 +30,7 @@ export default function ScannerClient({ sessionId }: { sessionId: string }) {
           if (res.success) {
             toast.success(res.message);
           } else {
-            toast.error(res.message);
+            toast.error(res.error || res.message || 'Erro ao registrar presença.');
           }
         } catch (error) {
           toast.error("Erro na leitura do QR Code.");

@@ -1,9 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function createRoleSyncTrigger() {
+async function fixRoleSyncTrigger() {
   try {
-    console.log('Criando função e trigger de sincronização de role no Supabase...');
+    console.log('Atualizando a função de trigger com o cast de UUID correto...');
 
     await prisma.$executeRawUnsafe(`
       CREATE OR REPLACE FUNCTION public.sync_user_role_to_auth()
@@ -11,7 +11,7 @@ async function createRoleSyncTrigger() {
       BEGIN
         UPDATE auth.users
         SET raw_user_meta_data = coalesce(raw_user_meta_data, '{}'::jsonb) || jsonb_build_object('role', NEW.role)
-        WHERE id = NEW.id;
+        WHERE id = NEW.id::uuid;
         RETURN NEW;
       END;
       $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -28,12 +28,12 @@ async function createRoleSyncTrigger() {
       EXECUTE FUNCTION public.sync_user_role_to_auth();
     `);
 
-    console.log('✅ Trigger criado com sucesso!');
+    console.log('✅ Trigger e função corrigidos com sucesso com NEW.id::uuid!');
   } catch (error) {
-    console.error('Erro ao criar trigger:', error);
+    console.error('Erro ao atualizar trigger:', error);
   } finally {
     await prisma.$disconnect();
   }
 }
 
-createRoleSyncTrigger();
+fixRoleSyncTrigger();

@@ -1,7 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
+import Image from 'next/image';
 import FloatingNavbar from './components/FloatingNavbar';
-import { Hexagon, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import styles from './admin.module.css';
 
 export default async function AdminLayout({
@@ -21,7 +22,13 @@ export default async function AdminLayout({
       <header className={styles.header}>
         <div className={styles.logoArea}>
           <div className={styles.logoIcon}>
-            <Hexagon fill="var(--primary)" color="var(--primary)" size={28} />
+            <Image 
+              src="/logo.png" 
+              alt="LogQR" 
+              width={34} 
+              height={34} 
+              style={{ borderRadius: '8px', objectFit: 'contain' }} 
+            />
           </div>
           <h2 className={styles.logoText}>
             Log<span style={{ color: 'var(--primary)' }}>QR</span>
