@@ -22,16 +22,24 @@
 }
 
 .logoIcon {
-  filter: drop-shadow(0 0 8px rgba(0, 217, 95, 0.5));
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.25);
   display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
 }
 
 .logoText {
-  color: var(--foreground);
+  color: #ffffff;
   margin: 0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.5px;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.08rem;
 }
 
 .userPill {

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">app-presenca</string>
-    <string name="title_activity_main">app-presenca</string>
+    <string name="app_name">LogQR</string>
+    <string name="title_activity_main">LogQR</string>
     <string name="package_name">com.app.presenca</string>
     <string name="custom_url_scheme">com.app.presenca</string>
 </resources>
