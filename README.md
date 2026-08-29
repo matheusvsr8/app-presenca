@@ -30,29 +30,55 @@ O **LogQR** é uma solução completa para controle de frequência em salas de a
 - **Prints e Fotos Rejeitados:** Códigos de dias anteriores são automaticamente invalidados pelo leitor, impedindo fraudes.
 - **Alto Contraste:** Renderização otimizada para leitura instantânea por qualquer câmera de smartphone.
 
-### 👨‍💼 2. Painel do Administrador (`/admin`)
-- **Dashboard Central:** Métricas em tempo real de turmas, alunos e chamadas realizadas.
+### 🎓 2. Portal do Aluno (`/student`) & Notificação em Tempo Real
+- **Notificação Instantânea de Presença:** O aluno recebe confirmação visual e sonora na tela no exato milissegundo em que seu QR Code é lido pelo professor.
+- **Modal Comemorativo Neon:** Exibe mensagem de presença confirmada com turma, data da aula e horário exato do check-in.
+- **Feedback Sonoro:** Chime harmônico executado via Web Audio API.
+- **Carteirinha Digital:** Dados cadastrais, curso atual e placar com **Presenças**, **Faltas** e **Taxa de Frequência (%)**.
+- **Histórico Aula por Aula:** Lista cronológica detalhada de todas as aulas com selo visual 🟢 **PRESENTE** (com horário do check-in) ou 🔴 **FALTA**.
+
+### 📱 3. Módulo do Colaborador / Professor (`/scanner`)
+- **Abertura Direta da Câmera Traseira:** Inicialização instantânea sem menus intermediários de escolha.
+- **Gestão de Sessões de Aula (Data e Horário):** Botão `+ Nova Aula` para agendar chamadas definindo data no calendário e horário de início/término.
+- **Seletor de Aulas:** Permite alternar entre as sessões cadastradas para realizar chamadas complementares.
+- **Card de Confirmação em Tempo Real:** Overlay visual exibindo o nome do aluno identificado, horário exato do check-in e feedback sonoro.
+- **Lista de Chamada Completa da Turma:**
+  - Placar com **Presentes**, **Faltas** e **Taxa de Assiduidade (%)**.
+  - Listagem de todos os alunos matriculados com filtros rápidos (`Todos`, `Presentes`, `Faltantes`).
+  - Indicação do horário de check-in de cada aluno escaneado.
+
+### 👨‍💼 4. Painel do Administrador (`/admin`)
+- **Dashboard Central com Ações Rápidas:** Métricas em tempo real e atalho direto para o leitor de QR Code.
 - **Design Híbrido Responsivo:** Tabelas completas no Desktop e **Cards Nativos no Mobile** (sem necessidade de rolagem lateral).
 - **Gestão de Alunos (`/admin/students`):** Cadastro, edição, visualização de perfis e alteração de cargos em tempo real com sincronização Postgres.
 - **Gestão de Turmas (`/admin/courses`):** Criação de cursos e gerenciamento de matrículas dinâmico com Server Actions.
 - **Gestão de Equipe (`/admin/staff`):** Controle de colaboradores, professores e administradores.
 - **Relatórios de Frequência (`/admin/reports`):** Métricas consolidadas com taxa percentual de presença (`%`), total de aulas e contagem de presenças.
 
-### 📱 3. Módulo do Colaborador / Professor (`/scanner`)
-- **Seleção de Turma:** Cards modernos com botão de ação rápida *"Abrir Câmera e Escanear"*.
-- **Abertura Direta da Câmera Traseira:** Inicialização instantânea sem menus intermediários de escolha.
-- **Sessão Automática:** Detecção e criação automática da chamada do dia.
-- **Card de Confirmação em Tempo Real:** Overlay visual exibindo o nome do aluno identificado, horário do check-in e feedback sonoro agradável.
-
-### 🎓 4. Portal do Aluno (`/student`)
-- **Carteirinha Digital:** Dados cadastrais, curso atual e placar com **Presenças**, **Faltas** e **Taxa de Frequência (%)**.
-- **Gerador de QR Code do Dia:** Botão interativo para exibir e ocultar o QR Code diário.
-- **Histórico Aula por Aula:** Lista cronológica detalhada de todas as aulas com selo visual 🟢 **PRESENTE** (com horário do check-in) ou 🔴 **FALTA** (caso o aluno não tenha comparecido).
-
-### 📲 5. Aplicativo Mobile Nativo (Android APK)
+### 📲 5. Aplicativo Mobile Nativo (LogQR.apk)
 - Encapsulado com **Capacitor.js** gerando o executável oficial **`LogQR.apk`**.
 - Tela de abertura (Splash Screen) animada em estilo cyber com scanner laser.
 - Sincronização em tempo real com a versão web sem necessidade de reinstalação para atualizações frontend.
+
+---
+
+## 📊 Matriz Oficial de Permissões do Sistema
+
+| Funcionalidade / Recurso | 🎓 Aluno (`STUDENT`) | 🛡️ Colaborador (`COLLABORATOR`) | 👑 Administrador (`ADMIN`) |
+|---|:---:|:---:|:---:|
+| **Acessar Carteirinha e QR Code do Dia** | ✅ | ❌ | ❌ |
+| **Receber Notificação de Presença em Tempo Real** | ✅ | ❌ | ❌ |
+| **Ver seu Próprio Histórico de Aulas (Presenças/Faltas)** | ✅ | ❌ | ❌ |
+| **Abrir Câmera Traseira e Escanear QR Codes** | ❌ | ✅ | ✅ |
+| **Criar e Agendar Aulas (Data e Horário)** | ❌ | ✅ | ✅ |
+| **Ver Lista de Chamada da Turma (Presentes vs Faltantes)** | ❌ | ✅ | ✅ |
+| **Ver Placar de Assiduidade e Taxa de Frequência da Aula** | ❌ | ✅ | ✅ |
+| **Filtrar Chamada por "Presentes" e "Faltantes"** | ❌ | ✅ | ✅ |
+| **Cadastrar / Editar Turmas e Matrículas** | ❌ | ❌ | ✅ |
+| **Ver Lista Geral de Todos os Alunos e Perfis da Escola** | ❌ | ❌ | ✅ |
+| **Alterar Cargos de Usuários (Aluno ⇄ Colab ⇄ Admin)** | ❌ | ❌ | ✅ |
+| **Gerenciar Equipe (Cadastrar/Remover Professores)** | ❌ | ❌ | ✅ |
+| **Relatórios Globais de Frequência e Métricas do Tenant** | ❌ | ❌ | ✅ |
 
 ---
 
