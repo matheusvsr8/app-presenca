@@ -8,61 +8,94 @@ interface LogoProps {
 export default function Logo({ size = 36, showText = true }: LogoProps) {
   return (
     <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.65rem' }}>
-      {/* Ícone Vetorial de QR Code Cyberpunk Ultra-Nítido */}
-      <div
+      {/* Ícone Vetorial de QR Code Cyberpunk Idêntico à Identidade Visual */}
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
         style={{
-          width: size,
-          height: size,
-          borderRadius: '9px',
-          background: 'linear-gradient(135deg, #0d1a12 0%, #050a07 100%)',
-          border: '1px solid rgba(0, 217, 95, 0.45)',
-          boxShadow: '0 0 15px rgba(0, 217, 95, 0.25), inset 0 0 8px rgba(0, 217, 95, 0.1)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          position: 'relative',
-          overflow: 'hidden',
+          filter: 'drop-shadow(0 0 8px rgba(0, 217, 95, 0.35))',
           flexShrink: 0
         }}
       >
-        <svg
-          width={size * 0.68}
-          height={size * 0.68}
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Top-Left Finder */}
-          <rect x="2" y="2" width="7" height="7" rx="1.5" stroke="#00d95f" strokeWidth="1.8" />
-          <rect x="4" y="4" width="3" height="3" rx="0.5" fill="#00d95f" />
-          
-          {/* Top-Right Finder */}
-          <rect x="15" y="2" width="7" height="7" rx="1.5" stroke="#00d95f" strokeWidth="1.8" />
-          <rect x="17" y="4" width="3" height="3" rx="0.5" fill="#00d95f" />
-          
-          {/* Bottom-Left Finder */}
-          <rect x="2" y="15" width="7" height="7" rx="1.5" stroke="#00d95f" strokeWidth="1.8" />
-          <rect x="4" y="17" width="3" height="3" rx="0.5" fill="#00d95f" />
-          
-          {/* High-Tech Data Pixels */}
-          <rect x="11" y="2" width="2" height="2" rx="0.5" fill="#ffffff" />
-          <rect x="11" y="6" width="2" height="2" rx="0.5" fill="#00d95f" />
-          <rect x="2" y="11" width="2" height="2" rx="0.5" fill="#ffffff" />
-          <rect x="6" y="11" width="2" height="2" rx="0.5" fill="#00d95f" />
-          <rect x="10" y="10" width="4" height="4" rx="1" fill="#00d95f" />
-          <rect x="16" y="11" width="2" height="2" rx="0.5" fill="#ffffff" />
-          <rect x="20" y="11" width="2" height="2" rx="0.5" fill="#00d95f" />
-          <rect x="11" y="16" width="2" height="2" rx="0.5" fill="#00d95f" />
-          <rect x="11" y="20" width="2" height="2" rx="0.5" fill="#ffffff" />
-          <rect x="15" y="15" width="7" height="7" rx="1.5" stroke="#00d95f" strokeWidth="1.8" />
-          <circle cx="18.5" cy="18.5" r="1.5" fill="#ffffff" />
-        </svg>
-      </div>
+        <defs>
+          {/* Gradiente de Fundo Cyber */}
+          <linearGradient id="logoBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#0a1a12"/>
+            <stop offset="100%" stopColor="#030704"/>
+          </linearGradient>
+
+          {/* Gradiente Neon Verde */}
+          <linearGradient id="logoNeonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#2aff8f"/>
+            <stop offset="100%" stopColor="#00d95f"/>
+          </linearGradient>
+
+          {/* Gradiente Brilho Ciano/Verde para o Núcleo */}
+          <linearGradient id="logoCoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#80ffc4"/>
+            <stop offset="100%" stopColor="#00e66b"/>
+          </linearGradient>
+        </defs>
+
+        {/* Moldura Arredondada com Borda Verde Neon */}
+        <rect
+          x="1"
+          y="1"
+          width="30"
+          height="30"
+          rx="7.5"
+          fill="url(#logoBgGrad)"
+          stroke="#00e66b"
+          strokeWidth="1.3"
+          strokeOpacity="0.9"
+        />
+
+        {/* Canto Superior Esquerdo */}
+        <rect x="4.2" y="4.2" width="8.6" height="8.6" rx="2.5" stroke="url(#logoNeonGrad)" strokeWidth="1.7"/>
+        <rect x="6.3" y="6.3" width="4.4" height="4.4" rx="1.2" fill="url(#logoNeonGrad)"/>
+
+        {/* Canto Superior Direito */}
+        <rect x="19.2" y="4.2" width="8.6" height="8.6" rx="2.5" stroke="url(#logoNeonGrad)" strokeWidth="1.7"/>
+        <rect x="21.3" y="6.3" width="4.4" height="4.4" rx="1.2" fill="url(#logoNeonGrad)"/>
+
+        {/* Canto Inferior Esquerdo */}
+        <rect x="4.2" y="19.2" width="8.6" height="8.6" rx="2.5" stroke="url(#logoNeonGrad)" strokeWidth="1.7"/>
+        <rect x="6.3" y="21.3" width="4.4" height="4.4" rx="1.2" fill="url(#logoNeonGrad)"/>
+
+        {/* Canto Inferior Direito com Ponto Branco */}
+        <rect x="19.2" y="19.2" width="8.6" height="8.6" rx="2.5" stroke="url(#logoNeonGrad)" strokeWidth="1.7"/>
+        <circle cx="23.5" cy="23.5" r="2.2" fill="#ffffff"/>
+
+        {/* Centro Matrix Core */}
+        <circle cx="16" cy="16" r="3.8" stroke="#00ff73" strokeWidth="0.8" strokeDasharray="1.5 1" opacity="0.8"/>
+        <circle cx="16" cy="16" r="2.5" fill="url(#logoCoreGrad)"/>
+        <circle cx="16" cy="16" r="1.1" fill="#ffffff"/>
+
+        {/* Conectores Matrix (Brancos e Verdes) */}
+        {/* Superior */}
+        <circle cx="16" cy="5.8" r="1.2" fill="#ffffff"/>
+        <circle cx="16" cy="9.4" r="0.9" fill="#00ff73"/>
+
+        {/* Inferior */}
+        <circle cx="16" cy="26.2" r="1.2" fill="#ffffff"/>
+        <circle cx="16" cy="22.6" r="0.9" fill="#00ff73"/>
+
+        {/* Esquerda */}
+        <circle cx="5.8" cy="16" r="1.2" fill="#ffffff"/>
+        <circle cx="9.4" cy="16" r="0.9" fill="#00ff73"/>
+
+        {/* Direita */}
+        <circle cx="26.2" cy="16" r="1.2" fill="#ffffff"/>
+        <circle cx="22.6" cy="16" r="0.9" fill="#00ff73"/>
+      </svg>
 
       {showText && (
         <span style={{
           color: '#ffffff',
-          fontSize: '1.25rem',
+          fontSize: `${Math.max(1, size * 0.033)}rem`,
           fontWeight: 900,
           letterSpacing: '0.04rem',
           fontFamily: 'system-ui, -apple-system, sans-serif'
