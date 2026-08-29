@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import styles from '../students.module.css';
 import { deleteStudent } from './actions';
+import ChangeRoleButton from './ChangeRoleButton';
 
 export default async function StudentProfilePage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -36,7 +37,7 @@ export default async function StudentProfilePage({ params }: { params: { id: str
             await deleteStudent(student.id);
           }}>
             <button type="submit" style={{ padding: '0.75rem 1.5rem', background: 'transparent', border: '1px solid var(--error)', color: 'var(--error)', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontWeight: 600 }}>
-              Excluir Aluno
+              Excluir Usuário
             </button>
           </form>
           <Link href="/admin/students" className={styles.linkButton} style={{ display: 'flex', alignItems: 'center' }}>
@@ -45,20 +46,29 @@ export default async function StudentProfilePage({ params }: { params: { id: str
         </div>
       </header>
 
-      <div className="glass" style={{ padding: '3rem', borderRadius: 'var(--radius-lg)', textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
-        <h2 style={{ marginBottom: '2rem', color: 'var(--primary)' }}>QR Code de Acesso</h2>
-        
-        {student.qrCode ? (
-          <div style={{ background: 'white', padding: '1.5rem', borderRadius: 'var(--radius-md)', display: 'inline-block' }}>
-            <QRCodeSVG value={student.qrCode} size={250} />
-          </div>
-        ) : (
-          <p style={{ color: 'var(--error)' }}>QR Code não gerado para este aluno.</p>
-        )}
+      <div style={{ maxWidth: '550px', margin: '0 auto' }}>
+        {/* Painel de Mudança de Cargo (Role) */}
+        <ChangeRoleButton 
+          userId={student.id} 
+          userName={student.name} 
+          currentRole={student.role as 'STUDENT' | 'COLLABORATOR' | 'ADMIN'} 
+        />
 
-        <p style={{ marginTop: '2rem', opacity: 0.7, fontSize: '0.875rem' }}>
-          Você pode imprimir este código e entregá-lo fisicamente ao aluno, ou ele mesmo pode acessar pelo portal do aluno.
-        </p>
+        <div className="glass" style={{ padding: '2.5rem', borderRadius: 'var(--radius-lg)', textAlign: 'center', marginTop: '1.5rem' }}>
+          <h2 style={{ marginBottom: '1.5rem', color: 'var(--primary)' }}>QR Code de Acesso</h2>
+          
+          {student.qrCode ? (
+            <div style={{ background: 'white', padding: '1.25rem', borderRadius: 'var(--radius-md)', display: 'inline-block' }}>
+              <QRCodeSVG value={student.qrCode} size={220} />
+            </div>
+          ) : (
+            <p style={{ color: 'var(--error)' }}>QR Code não gerado para este aluno.</p>
+          )}
+
+          <p style={{ marginTop: '1.5rem', opacity: 0.7, fontSize: '0.85rem' }}>
+            Você pode imprimir este código e entregá-lo fisicamente ao aluno, ou ele mesmo pode acessar pelo portal do aluno.
+          </p>
+        </div>
       </div>
     </div>
   );

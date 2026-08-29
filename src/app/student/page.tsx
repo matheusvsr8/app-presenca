@@ -1,8 +1,9 @@
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { generateDailyQrCode, getTodayDateString } from '@/lib/qr';
 import styles from './student.module.css';
-import { QRCodeSVG } from 'qrcode.react';
+import QrGeneratorCard from './QrGeneratorCard';
 
 export default async function StudentDashboard() {
   const supabase = await createClient();
@@ -32,13 +33,18 @@ export default async function StudentDashboard() {
     }
   });
 
-  const enrollment = dbUser?.enrollments[0]; // Assumindo que o aluno tem 1 matrícula por vez
+  const enrollment = dbUser?.enrollments[0];
   const course = enrollment?.course;
   
   // Calculando as métricas
   const totalSessions = course?.sessions.length || 0;
   const totalAttendances = dbUser?.attendances.filter(a => a.session.courseId === course?.id).length || 0;
-  const totalAbsences = Math.max(0, totalSessions - totalAttendances); // Faltas são as sessões que ocorreram menos as que ele foi
+  const totalAbsences = Math.max(0, totalSessions - totalAttendances);
+
+  // QR Code Dinâmico Diário
+  const todayStr = getTodayDateString();
+  const formattedDate = todayStr.split('-').reverse().join('/');
+  const dailyQrValue = dbUser ? generateDailyQrCode(dbUser.id, todayStr) : '';
 
   return (
     <div className={styles.container}>
@@ -51,18 +57,13 @@ export default async function StudentDashboard() {
       </header>
 
       <main className={styles.main}>
-        {/* Cartão de Identificação (QR) */}
-        <div className={`${styles.card} glass`}>
-          <h2>Seu QR Code de Acesso</h2>
-          <div className={styles.qrPlaceholder}>
-            {dbUser?.qrCode ? (
-              <QRCodeSVG value={dbUser.qrCode} size={180} fgColor="var(--primary)" bgColor="transparent" />
-            ) : (
-              <p>Você não possui um QR Code ainda.</p>
-            )}
-          </div>
-          <p className={styles.instructions} style={{ marginBottom: 0 }}>Apresente este código ao chegar na aula.</p>
-        </div>
+        {/* Cartão de Geração de QR Code Interativo */}
+        <QrGeneratorCard
+          studentId={dbUser?.id || ''}
+          courseName={course?.name}
+          formattedDate={formattedDate}
+          dailyQrValue={dailyQrValue}
+        />
 
         {/* Resumo Acadêmico */}
         {course ? (

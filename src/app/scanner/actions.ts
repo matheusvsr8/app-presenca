@@ -2,6 +2,7 @@
 
 import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
+import { verifyDailyQrCode } from '@/lib/qr';
 
 export async function registerAttendance(qrCode: string, sessionId: string) {
   const supabase = await createClient();
@@ -13,13 +14,26 @@ export async function registerAttendance(qrCode: string, sessionId: string) {
   const tenantId = user?.user_metadata?.tenantId;
 
   try {
-    // 1. Achar o aluno pelo QRCode e checar tenant
-    const student = await prisma.user.findUnique({
-      where: { qrCode, tenantId },
-    });
+    // 1. Validação Criptográfica e Temporal do QR Code Diário
+    const verification = verifyDailyQrCode(qrCode);
+    if (!verification.isValid) {
+      return { success: false, error: verification.error || 'QR Code inválido ou expirado.' };
+    }
+
+    // 2. Achar o aluno no banco de dados
+    let student = null;
+    if (qrCode.startsWith('LOGQR:')) {
+      student = await prisma.user.findFirst({
+        where: { id: verification.studentId, tenantId },
+      });
+    } else {
+      student = await prisma.user.findFirst({
+        where: { qrCode: verification.studentId, tenantId },
+      });
+    }
 
     if (!student) {
-      return { success: false, error: 'Aluno não encontrado ou não pertence a esta empresa.' };
+      return { success: false, error: 'Aluno não encontrado ou não pertence a esta instituição.' };
     }
 
     // 2. Achar a sessão e o curso correspondente

@@ -1,8 +1,10 @@
 .container {
   min-height: 100vh;
-  padding: 2rem;
-  max-width: 800px;
+  padding: 2rem 1rem;
+  max-width: 650px;
   margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header {
@@ -11,13 +13,16 @@
 }
 
 .title {
-  color: var(--primary);
+  color: var(--primary, #00d95f);
   font-size: 2rem;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  margin: 0;
 }
 
 .subtitle {
   opacity: 0.7;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
 }
 
 .main {
@@ -28,26 +33,21 @@
 
 .card {
   padding: 2rem;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg, 1.5rem);
   text-align: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-md, 0 8px 24px rgba(0, 0, 0, 0.5));
 }
 
 .qrPlaceholder {
-  margin: 2rem auto;
-  width: 250px;
-  height: 250px;
-  border: 2px dashed var(--primary);
-  border-radius: var(--radius-md);
+  margin: 1.5rem auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(79, 70, 229, 0.05);
-  color: var(--primary);
-  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .instructions {
   font-size: 0.9rem;
   opacity: 0.8;
+  margin: 0;
 }
