@@ -3,6 +3,43 @@
 import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { verifyDailyQrCode } from '@/lib/qr';
+import { revalidatePath } from 'next/cache';
+
+export async function createClassSession(courseId: string, dateString: string, timeString?: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user?.user_metadata?.role === 'STUDENT') {
+    return { success: false, error: 'Não autorizado.' };
+  }
+
+  try {
+    let sessionDate = new Date();
+    if (dateString) {
+      const [year, month, day] = dateString.split('-').map(Number);
+      sessionDate.setFullYear(year, month - 1, day);
+    }
+    
+    if (timeString) {
+      const [hours, minutes] = timeString.split(':').map(Number);
+      if (!isNaN(hours) && !isNaN(minutes)) {
+        sessionDate.setHours(hours, minutes, 0, 0);
+      }
+    }
+
+    const newSession = await prisma.session.create({
+      data: {
+        courseId,
+        date: sessionDate,
+      },
+    });
+
+    revalidatePath(`/scanner/${courseId}`);
+    return { success: true, sessionId: newSession.id };
+  } catch (error) {
+    console.error('Erro ao criar sessão de aula:', error);
+    return { success: false, error: 'Erro ao criar sessão de aula.' };
+  }
+}
 
 export async function registerAttendance(qrCode: string, sessionId: string) {
   const supabase = await createClient();

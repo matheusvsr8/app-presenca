@@ -5,6 +5,7 @@ import { generateDailyQrCode, getTodayDateString } from '@/lib/qr';
 import { CheckCircle2, XCircle, Calendar, Sparkles, User, Mail } from 'lucide-react';
 import styles from './student.module.css';
 import QrGeneratorCard from './QrGeneratorCard';
+import StudentRealtimeAttendance from './StudentRealtimeAttendance';
 import Logo from '@/components/Logo';
 
 export default async function StudentDashboard() {
@@ -87,6 +88,14 @@ export default async function StudentDashboard() {
       </header>
 
       <main className={styles.main}>
+        {/* Notificador de Presença em Tempo Real com Som e Modal */}
+        {dbUser && (
+          <StudentRealtimeAttendance
+            studentId={dbUser.id}
+            initialAttendanceCount={dbUser.attendances.length}
+          />
+        )}
+
         {/* Cartão de Geração de QR Code Interativo */}
         <QrGeneratorCard
           studentId={dbUser?.id || ''}
@@ -173,12 +182,12 @@ export default async function StudentDashboard() {
                   >
                     <div>
                       <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff', display: 'block' }}>
-                        {sessionDate.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
+                        {sessionDate.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })} às {sessionDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                       <span style={{ fontSize: '0.75rem', color: isPresent ? 'rgba(0, 217, 95, 0.9)' : 'rgba(239, 68, 68, 0.9)', marginTop: '2px', display: 'block' }}>
                         {isPresent 
-                          ? `Confirmada às ${new Date(attendance.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
-                          : 'Ausente (Não escaneado)'
+                          ? `Check-in realizado às ${new Date(attendance.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+                          : 'Ausente (Não compareceu)'
                         }
                       </span>
                     </div>
