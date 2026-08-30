@@ -41,6 +41,45 @@ export async function createClassSession(courseId: string, dateString: string, t
   }
 }
 
+export async function toggleManualAttendance(sessionId: string, studentId: string, courseId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user?.user_metadata?.role === 'STUDENT') {
+    return { success: false, error: 'Não autorizado.' };
+  }
+
+  try {
+    const existing = await prisma.attendance.findUnique({
+      where: {
+        sessionId_studentId: {
+          sessionId,
+          studentId,
+        },
+      },
+    });
+
+    if (existing) {
+      await prisma.attendance.delete({
+        where: { id: existing.id },
+      });
+      revalidatePath(`/scanner/${courseId}`);
+      return { success: true, isPresent: false, message: 'Presença removida.' };
+    } else {
+      await prisma.attendance.create({
+        data: {
+          sessionId,
+          studentId,
+        },
+      });
+      revalidatePath(`/scanner/${courseId}`);
+      return { success: true, isPresent: true, message: 'Presença marcada manualmente!' };
+    }
+  } catch (error) {
+    console.error('Erro ao alternar presença manual:', error);
+    return { success: false, error: 'Erro ao atualizar presença.' };
+  }
+}
+
 export async function registerAttendance(qrCode: string, sessionId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

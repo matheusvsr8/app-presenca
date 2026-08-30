@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Users, BookOpen, Calendar, Camera, UserPlus, FileBarChart, Sparkles } from 'lucide-react';
+import { Users, BookOpen, Calendar, Camera, FileCheck, FileBarChart, Sparkles } from 'lucide-react';
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -23,10 +23,11 @@ export default async function AdminDashboard() {
 
   const tenantId = dbUser?.tenantId || user?.user_metadata?.tenantId;
 
-  const [studentCount, courseCount, sessionCount] = await Promise.all([
+  const [studentCount, courseCount, sessionCount, pendingExcusesCount] = await Promise.all([
     prisma.user.count({ where: { tenantId, role: 'STUDENT' } }),
     prisma.course.count({ where: { tenantId } }),
-    prisma.session.count({ where: { course: { tenantId } } })
+    prisma.session.count({ where: { course: { tenantId } } }),
+    prisma.absenceExcuse.count({ where: { student: { tenantId }, status: 'PENDING' } })
   ]);
 
   return (
@@ -40,12 +41,12 @@ export default async function AdminDashboard() {
           Visão Geral
         </h1>
         <p style={{ opacity: 0.7, margin: 0, fontSize: '0.95rem' }}>
-          Acompanhe métricas, gerencie turmas, alunos e acesse o leitor de chamadas.
+          Acompanhe métricas, gerencie turmas, alunos, atestados e acesse o leitor de chamadas.
         </p>
       </header>
 
       {/* Grid de Métricas Principais */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
         <div className="glass" style={{ padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(0, 217, 95, 0.25)', textAlign: 'left' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Alunos Matriculados</span>
@@ -69,6 +70,20 @@ export default async function AdminDashboard() {
           </div>
           <h2 style={{ fontSize: '2.5rem', color: '#ffffff', fontWeight: 800, margin: '0.5rem 0 0 0' }}>{sessionCount}</h2>
         </div>
+
+        <div className="glass" style={{ 
+          padding: '1.5rem', 
+          borderRadius: '16px', 
+          border: pendingExcusesCount > 0 ? '1px solid rgba(234, 179, 8, 0.4)' : '1px solid rgba(0, 217, 95, 0.25)', 
+          background: pendingExcusesCount > 0 ? 'rgba(234, 179, 8, 0.08)' : 'inherit',
+          textAlign: 'left' 
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.85rem', color: pendingExcusesCount > 0 ? '#fde047' : 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Atestados Pendentes</span>
+            <FileCheck size={20} color={pendingExcusesCount > 0 ? '#eab308' : 'var(--primary)'} />
+          </div>
+          <h2 style={{ fontSize: '2.5rem', color: pendingExcusesCount > 0 ? '#fef08a' : '#ffffff', fontWeight: 800, margin: '0.5rem 0 0 0' }}>{pendingExcusesCount}</h2>
+        </div>
       </div>
 
       {/* Ações Rápidas do Administrador */}
@@ -88,8 +103,7 @@ export default async function AdminDashboard() {
             padding: '1.25rem',
             display: 'flex',
             alignItems: 'center',
-            gap: '14px',
-            transition: 'transform 0.15s, border-color 0.15s'
+            gap: '14px'
           }}
         >
           <div style={{
@@ -111,6 +125,43 @@ export default async function AdminDashboard() {
             </h4>
             <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: '2px', display: 'block' }}>
               Fazer chamada e ler presenças com a câmera
+            </span>
+          </div>
+        </Link>
+
+        {/* Central de Atestados */}
+        <Link 
+          href="/admin/excuses" 
+          style={{
+            textDecoration: 'none',
+            background: pendingExcusesCount > 0 ? 'rgba(234, 179, 8, 0.1)' : 'var(--card-bg)',
+            border: pendingExcusesCount > 0 ? '1px solid rgba(234, 179, 8, 0.35)' : '1px solid var(--card-border)',
+            borderRadius: '16px',
+            padding: '1.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '14px'
+          }}
+        >
+          <div style={{
+            width: '46px',
+            height: '46px',
+            borderRadius: '12px',
+            background: pendingExcusesCount > 0 ? 'rgba(234, 179, 8, 0.2)' : 'rgba(255, 255, 255, 0.08)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: pendingExcusesCount > 0 ? '#fde047' : 'var(--primary)',
+            flexShrink: 0
+          }}>
+            <FileCheck size={22} />
+          </div>
+          <div>
+            <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#ffffff' }}>
+              Central de Atestados
+            </h4>
+            <span style={{ fontSize: '0.8rem', color: pendingExcusesCount > 0 ? '#fef08a' : 'rgba(255,255,255,0.6)', marginTop: '2px', display: 'block' }}>
+              {pendingExcusesCount > 0 ? `${pendingExcusesCount} justificativas aguardando análise` : 'Avaliar atestados e abonar faltas'}
             </span>
           </div>
         </Link>
@@ -184,7 +235,7 @@ export default async function AdminDashboard() {
               Relatórios de Presença
             </h4>
             <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.6)', marginTop: '2px', display: 'block' }}>
-              Taxa de frequência, faltas e assiduidade
+              Gráficos, exportação CSV e alertas de risco
             </span>
           </div>
         </Link>

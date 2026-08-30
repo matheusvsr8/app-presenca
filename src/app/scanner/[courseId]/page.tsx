@@ -159,6 +159,8 @@ export default async function ScannerCoursePage({
 
       {/* Lista de Chamada em Tempo Real: Presenças vs Faltas da Turma */}
       <ClassAttendanceList
+        courseId={course.id}
+        sessionId={activeSession.id}
         students={studentsAttendanceStatus}
         sessionDate={activeSession.date.toISOString()}
       />

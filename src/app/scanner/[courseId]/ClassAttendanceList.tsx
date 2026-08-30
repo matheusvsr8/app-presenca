@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { Users, CheckCircle2, XCircle, UserCheck, UserX, Clock } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { Users, CheckCircle2, XCircle, UserCheck, UserX, Clock, Zap } from 'lucide-react';
+import { toggleManualAttendance } from '../actions';
+import { toast } from 'sonner';
 
 interface StudentAttendanceStatus {
   id: string;
@@ -12,15 +14,21 @@ interface StudentAttendanceStatus {
 }
 
 interface ClassAttendanceListProps {
+  courseId: string;
+  sessionId: string;
   students: StudentAttendanceStatus[];
   sessionDate: string;
 }
 
 export default function ClassAttendanceList({
+  courseId,
+  sessionId,
   students,
   sessionDate,
 }: ClassAttendanceListProps) {
   const [filter, setFilter] = useState<'all' | 'present' | 'absent'>('all');
+  const [isPending, startTransition] = useTransition();
+  const [pendingStudentId, setPendingStudentId] = useState<string | null>(null);
 
   const presentCount = students.filter(s => s.isPresent).length;
   const absentCount = students.length - presentCount;
@@ -31,6 +39,19 @@ export default function ClassAttendanceList({
     if (filter === 'absent') return !s.isPresent;
     return true;
   });
+
+  const handleToggle = (studentId: string, studentName: string, currentlyPresent: boolean) => {
+    setPendingStudentId(studentId);
+    startTransition(async () => {
+      const res = await toggleManualAttendance(sessionId, studentId, courseId);
+      if (res.success) {
+        toast.success(res.message);
+      } else {
+        toast.error(res.error || 'Erro ao alterar presença.');
+      }
+      setPendingStudentId(null);
+    });
+  };
 
   return (
     <div style={{ marginTop: '1.5rem', textAlign: 'left' }}>
@@ -158,62 +179,102 @@ export default function ClassAttendanceList({
             Nenhum aluno encontrado neste filtro.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '350px', overflowY: 'auto' }}>
-            {filteredStudents.map(student => (
-              <div
-                key={student.id}
-                style={{
-                  padding: '0.75rem 0.9rem',
-                  borderRadius: '10px',
-                  background: student.isPresent ? 'rgba(0, 217, 95, 0.05)' : 'rgba(239, 68, 68, 0.05)',
-                  border: `1px solid ${student.isPresent ? 'rgba(0, 217, 95, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
-                  borderLeft: `4px solid ${student.isPresent ? 'var(--primary)' : 'var(--error)'}`,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#ffffff' }}>
-                    {student.name}
-                  </h4>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.55, wordBreak: 'break-all', display: 'block' }}>
-                    {student.email}
-                  </span>
-                </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxHeight: '420px', overflowY: 'auto' }}>
+            {filteredStudents.map(student => {
+              const isCurrentStudentPending = isPending && pendingStudentId === student.id;
 
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <span style={{
-                    display: 'inline-flex',
+              return (
+                <div
+                  key={student.id}
+                  style={{
+                    padding: '0.75rem 0.9rem',
+                    borderRadius: '10px',
+                    background: student.isPresent ? 'rgba(0, 217, 95, 0.05)' : 'rgba(239, 68, 68, 0.05)',
+                    border: `1px solid ${student.isPresent ? 'rgba(0, 217, 95, 0.2)' : 'rgba(239, 68, 68, 0.2)'}`,
+                    borderLeft: `4px solid ${student.isPresent ? 'var(--primary)' : 'var(--error)'}`,
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    gap: '4px',
-                    padding: '3px 8px',
-                    borderRadius: '6px',
-                    background: student.isPresent ? 'rgba(0, 217, 95, 0.15)' : 'rgba(239, 68, 68, 0.15)',
-                    color: student.isPresent ? 'var(--primary)' : 'var(--error)',
-                    fontWeight: 800,
-                    fontSize: '0.72rem'
-                  }}>
-                    {student.isPresent ? (
-                      <>
-                        <CheckCircle2 size={12} />
-                        PRESENTE
-                      </>
-                    ) : (
-                      <>
-                        <XCircle size={12} />
-                        FALTA
-                      </>
-                    )}
-                  </span>
-                  {student.isPresent && student.checkedInAt && (
-                    <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: '2px' }}>
-                      {student.checkedInAt}
+                    gap: '8px'
+                  }}
+                >
+                  <div style={{ minWidth: 0 }}>
+                    <h4 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 700, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {student.name}
+                    </h4>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.55, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block' }}>
+                      {student.email}
                     </span>
-                  )}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    {/* Badge de Status */}
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        background: student.isPresent ? 'rgba(0, 217, 95, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+                        color: student.isPresent ? 'var(--primary)' : 'var(--error)',
+                        fontWeight: 800,
+                        fontSize: '0.72rem'
+                      }}>
+                        {student.isPresent ? (
+                          <>
+                            <CheckCircle2 size={12} />
+                            PRESENTE
+                          </>
+                        ) : (
+                          <>
+                            <XCircle size={12} />
+                            FALTA
+                          </>
+                        )}
+                      </span>
+                      {student.isPresent && student.checkedInAt && (
+                        <span style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.6)', display: 'block', marginTop: '2px' }}>
+                          {student.checkedInAt}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Botão de Ação Rápida 1-Clique */}
+                    <button
+                      onClick={() => handleToggle(student.id, student.name, student.isPresent)}
+                      disabled={isCurrentStudentPending}
+                      title={student.isPresent ? 'Desmarcar presença' : 'Marcar presença manual'}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: '8px',
+                        border: student.isPresent ? '1px solid rgba(239, 68, 68, 0.35)' : '1px solid rgba(0, 217, 95, 0.4)',
+                        background: student.isPresent ? 'rgba(239, 68, 68, 0.1)' : 'rgba(0, 217, 95, 0.15)',
+                        color: student.isPresent ? '#fca5a5' : 'var(--primary)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        cursor: isCurrentStudentPending ? 'not-allowed' : 'pointer',
+                        opacity: isCurrentStudentPending ? 0.5 : 1,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      {isCurrentStudentPending ? (
+                        '...'
+                      ) : student.isPresent ? (
+                        'Desmarcar'
+                      ) : (
+                        <>
+                          <Zap size={12} fill="currentColor" />
+                          Marcar
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

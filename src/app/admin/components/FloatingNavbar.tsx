@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, FolderOpen, BarChart2, LogOut, UserCog } from 'lucide-react';
+import { Home, Users, FolderOpen, BarChart2, LogOut, UserCog, FileCheck } from 'lucide-react';
 import styles from './navbar.module.css';
 
 export default function FloatingNavbar() {
@@ -12,6 +12,7 @@ export default function FloatingNavbar() {
     { href: '/admin', icon: Home, label: 'Dashboard' },
     { href: '/admin/students', icon: Users, label: 'Alunos' },
     { href: '/admin/courses', icon: FolderOpen, label: 'Cursos' },
+    { href: '/admin/excuses', icon: FileCheck, label: 'Atestados' },
     { href: '/admin/staff', icon: UserCog, label: 'Equipe' },
     { href: '/admin/reports', icon: BarChart2, label: 'Relatórios' },
   ];
