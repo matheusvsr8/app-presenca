@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import Link from 'next/link';
-import { LogOut, BookOpen, ChevronRight, Sparkles, Users } from 'lucide-react';
+import { LogOut, BookOpen, ChevronRight, Sparkles, Users, AlertCircle } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 export default async function ScannerDashboard() {
@@ -24,9 +24,10 @@ export default async function ScannerDashboard() {
   }
 
   const tenantId = dbUser?.tenantId || user?.user_metadata?.tenantId;
+  const isAdmin = userRole === 'ADMIN';
 
-  // Busca todos os cursos disponíveis com contagem de alunos
-  const courses = tenantId 
+  // Se for ADMIN, vê todos os cursos da instituição. Se for COLLABORATOR, apenas os cursos onde está atribuído!
+  const courses = isAdmin
     ? await prisma.course.findMany({ 
         where: { tenantId },
         orderBy: { name: 'asc' },
@@ -37,6 +38,14 @@ export default async function ScannerDashboard() {
         }
       })
     : await prisma.course.findMany({ 
+        where: { 
+          tenantId,
+          teachers: {
+            some: {
+              teacherId: user.id
+            }
+          }
+        },
         orderBy: { name: 'asc' },
         include: {
           _count: {
@@ -80,27 +89,33 @@ export default async function ScannerDashboard() {
       <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--primary)', fontSize: '0.8rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05rem', marginBottom: '4px' }}>
           <Sparkles size={14} />
-          Portal do Colaborador
+          {isAdmin ? 'Acesso Administrativo' : 'Portal do Professor'}
         </div>
         <h1 style={{ color: '#ffffff', margin: '0 0 6px 0', fontSize: '1.65rem', fontWeight: 800 }}>
-          Selecionar Turma
+          {isAdmin ? 'Todas as Turmas' : 'Minhas Turmas'}
         </h1>
         <p style={{ color: 'rgba(255, 255, 255, 0.65)', margin: 0, fontSize: '0.9rem', lineHeight: 1.4 }}>
-          Olá, <strong>{dbUser?.name || user?.user_metadata?.name || 'Professor'}</strong>! Escolha a turma abaixo para gerenciar as aulas e iniciar a chamada.
+          Olá, <strong>{dbUser?.name || user?.user_metadata?.name || 'Professor'}</strong>! {isAdmin ? 'Acesse qualquer turma da instituição para gerenciar e escanear.' : 'Abaixo estão listadas as turmas atribuídas a você pelo Administrador.'}
         </p>
       </div>
 
-      {/* Lista de Turmas */}
+      {/* Lista de Turmas com restrição por professor */}
       {courses.length === 0 ? (
         <div style={{ 
-          padding: '3rem 1.5rem', 
+          padding: '2.5rem 1.5rem', 
           textAlign: 'center', 
-          background: 'rgba(239, 68, 68, 0.08)', 
-          border: '1px solid rgba(239, 68, 68, 0.2)', 
+          background: 'rgba(234, 179, 8, 0.08)', 
+          border: '1px solid rgba(234, 179, 8, 0.3)', 
           borderRadius: '16px', 
-          color: 'var(--error)' 
+          color: '#fde047' 
         }}>
-          Nenhuma turma encontrada. Peça ao administrador para cadastrar os cursos.
+          <AlertCircle size={36} style={{ margin: '0 auto 12px auto', display: 'block', color: '#eab308' }} />
+          <h3 style={{ margin: '0 0 6px 0', color: '#ffffff', fontSize: '1.1rem', fontWeight: 800 }}>
+            Nenhuma turma atribuída
+          </h3>
+          <p style={{ margin: 0, fontSize: '0.85rem', color: 'rgba(255, 255, 255, 0.75)', lineHeight: 1.4 }}>
+            Você ainda não foi vinculado a nenhuma turma. Peça ao Administrador para atribuir seus cursos no painel da coordenação.
+          </p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>

@@ -38,6 +38,7 @@ export default async function ScannerCoursePage({
   const course = await prisma.course.findUnique({
     where: { id: courseId },
     include: {
+      teachers: true,
       sessions: {
         orderBy: { date: 'desc' },
         include: {
@@ -65,6 +66,14 @@ export default async function ScannerCoursePage({
         </Link>
       </div>
     );
+  }
+
+  // Se for colaborador, valida se ele está atribuído a esta turma
+  if (userRole !== 'ADMIN') {
+    const isAssigned = course.teachers.some(t => t.teacherId === user.id);
+    if (!isAssigned) {
+      redirect('/scanner');
+    }
   }
 
   let classSessions = course.sessions;

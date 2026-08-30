@@ -28,6 +28,38 @@ export async function removeStudent(courseId: string, studentId: string) {
   revalidatePath(`/admin/courses/${courseId}`);
 }
 
+export async function assignTeacher(courseId: string, teacherId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user?.user_metadata?.role !== 'ADMIN') throw new Error('Acesso negado');
+
+  await prisma.courseTeacher.upsert({
+    where: {
+      teacherId_courseId: { teacherId, courseId }
+    },
+    update: {},
+    create: { courseId, teacherId }
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath('/scanner');
+}
+
+export async function removeTeacher(courseId: string, teacherId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user?.user_metadata?.role !== 'ADMIN') throw new Error('Acesso negado');
+
+  await prisma.courseTeacher.delete({
+    where: {
+      teacherId_courseId: { teacherId, courseId }
+    }
+  });
+
+  revalidatePath(`/admin/courses/${courseId}`);
+  revalidatePath('/scanner');
+}
+
 export async function deleteCourse(courseId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
