@@ -41,6 +41,29 @@ export async function createClassSession(courseId: string, dateString: string, t
   }
 }
 
+export async function deleteClassSession(sessionId: string, courseId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user || user?.user_metadata?.role === 'STUDENT') {
+    return { success: false, error: 'Não autorizado.' };
+  }
+
+  try {
+    // Exclui a sessão (e presenças/atestados vinculados via Cascade)
+    await prisma.session.delete({
+      where: { id: sessionId },
+    });
+
+    revalidatePath(`/scanner/${courseId}`);
+    revalidatePath('/student');
+    revalidatePath('/admin/reports');
+    return { success: true, message: 'Aula excluída com sucesso!' };
+  } catch (error) {
+    console.error('Erro ao excluir sessão de aula:', error);
+    return { success: false, error: 'Erro ao excluir aula.' };
+  }
+}
+
 export async function toggleManualAttendance(sessionId: string, studentId: string, courseId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
